@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -23,14 +24,24 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.Bolt
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Cloud
 import androidx.compose.material.icons.filled.CloudDone
 import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Flag
+import androidx.compose.material.icons.filled.Lightbulb
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Psychology
+import androidx.compose.material.icons.filled.RocketLaunch
+import androidx.compose.material.icons.filled.Security
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material.icons.filled.Work
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -58,6 +69,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -68,7 +80,22 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.example.data.model.UserAccount
 
-private val EMOJI_OPTIONS = listOf("⚡", "🎨", "💼", "🚀", "🌟", "🎯", "💡", "🔥", "👑", "🌿", "🏆", "🧠")
+private data class AuthAvatarOption(val id: String, val icon: ImageVector)
+
+private val AUTH_AVATAR_OPTIONS = listOf(
+    AuthAvatarOption("bolt", Icons.Default.Bolt),
+    AuthAvatarOption("work", Icons.Default.Work),
+    AuthAvatarOption("rocket", Icons.Default.RocketLaunch),
+    AuthAvatarOption("star", Icons.Default.Star),
+    AuthAvatarOption("lightbulb", Icons.Default.Lightbulb),
+    AuthAvatarOption("palette", Icons.Default.Palette),
+    AuthAvatarOption("psychology", Icons.Default.Psychology),
+    AuthAvatarOption("person", Icons.Default.Person),
+    AuthAvatarOption("check", Icons.Default.CheckCircle),
+    AuthAvatarOption("flag", Icons.Default.Flag),
+    AuthAvatarOption("favorite", Icons.Default.Favorite),
+    AuthAvatarOption("security", Icons.Default.Security)
+)
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -89,7 +116,7 @@ fun AuthDialog(
     var confirmPassword by remember { mutableStateOf("") }
     var displayName by remember { mutableStateOf("") }
     var role by remember { mutableStateOf("") }
-    var selectedEmoji by remember { mutableStateOf("⚡") }
+    var selectedAvatarId by remember { mutableStateOf("bolt") }
     var passwordVisible by remember { mutableStateOf(false) }
     var validationError by remember { mutableStateOf<String?>(null) }
 
@@ -97,6 +124,7 @@ fun AuthDialog(
         Surface(
             modifier = Modifier
                 .fillMaxWidth()
+                .widthIn(max = 520.dp)
                 .clip(RoundedCornerShape(28.dp))
                 .testTag("auth_dialog"),
             color = MaterialTheme.colorScheme.surface,
@@ -229,10 +257,10 @@ fun AuthDialog(
                     }
                 }
 
-                // If Register: Emoji Selector & Name
+                // If Register: Avatar Selector & Name
                 if (selectedTab == 1) {
                     Text(
-                        text = "Choose Profile Avatar",
+                        text = "Choose Profile Icon",
                         style = MaterialTheme.typography.labelMedium,
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.primary
@@ -244,8 +272,8 @@ fun AuthDialog(
                         verticalArrangement = Arrangement.spacedBy(8.dp),
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        EMOJI_OPTIONS.forEach { emoji ->
-                            val isSelected = emoji == selectedEmoji
+                        AUTH_AVATAR_OPTIONS.forEach { opt ->
+                            val isSelected = opt.id == selectedAvatarId
                             Box(
                                 modifier = Modifier
                                     .size(40.dp)
@@ -259,11 +287,16 @@ fun AuthDialog(
                                         color = if (isSelected) MaterialTheme.colorScheme.primary else Color.Transparent,
                                         shape = CircleShape
                                     )
-                                    .clickable { selectedEmoji = emoji }
-                                    .testTag("auth_emoji_$emoji"),
+                                    .clickable { selectedAvatarId = opt.id }
+                                    .testTag("auth_avatar_${opt.id}"),
                                 contentAlignment = Alignment.Center
                             ) {
-                                Text(text = emoji, fontSize = 18.sp)
+                                Icon(
+                                    imageVector = opt.icon,
+                                    contentDescription = null,
+                                    tint = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.size(18.dp)
+                                )
                             }
                         }
                     }
@@ -433,7 +466,7 @@ fun AuthDialog(
                                 password,
                                 displayName.trim(),
                                 role.trim().ifBlank { "Member" },
-                                selectedEmoji
+                                selectedAvatarId
                             )
                         }
                     },
@@ -469,7 +502,7 @@ fun AuthDialog(
 
                 // Multi-User Demo Switcher
                 Text(
-                    text = "Quick Multi-User Profiles (Test Data Isolation):",
+                    text = "Quick Demo Profiles:",
                     style = MaterialTheme.typography.labelSmall,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -478,6 +511,7 @@ fun AuthDialog(
 
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     UserAccount.DEFAULT_DEMO_USERS.forEach { demoUser ->
+                        val initial = demoUser.displayName.firstOrNull()?.uppercase() ?: "U"
                         Card(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -501,10 +535,15 @@ fun AuthDialog(
                                     modifier = Modifier
                                         .size(36.dp)
                                         .clip(CircleShape)
-                                        .background(MaterialTheme.colorScheme.primaryContainer),
+                                        .background(MaterialTheme.colorScheme.primary),
                                     contentAlignment = Alignment.Center
                                 ) {
-                                    Text(demoUser.avatarEmoji, fontSize = 18.sp)
+                                    Text(
+                                        text = initial,
+                                        fontSize = 15.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.onPrimary
+                                    )
                                 }
                                 Spacer(modifier = Modifier.width(12.dp))
                                 Column(modifier = Modifier.weight(1f)) {

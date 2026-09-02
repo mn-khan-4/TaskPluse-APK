@@ -31,19 +31,19 @@ fun getAppColorScheme(
 
     return if (isDark) {
         val bg = if (isAmoled) Color(0xFF000000) else ElegantBackground
-        val surface = if (isAmoled) Color(0xFF121212) else ElegantSurface
-        val surfaceVariant = if (isAmoled) Color(0xFF1E1E1E) else ElegantSurfaceVariant
-        val border = if (isAmoled) Color(0xFF2E2E2E) else ElegantBorder
+        val surface = if (isAmoled) Color(0xFF101010) else ElegantSurface
+        val surfaceVariant = if (isAmoled) Color(0xFF1A1A1A) else ElegantSurfaceVariant
+        val border = if (isAmoled) Color(0xFF262626) else ElegantBorder
 
         darkColorScheme(
-            primary = accent.primaryColor,
-            onPrimary = accent.onPrimaryColor,
-            primaryContainer = accent.containerColor,
-            onPrimaryContainer = Color.White,
-            secondary = accent.primaryColor.copy(alpha = 0.8f),
-            onSecondary = accent.onPrimaryColor,
-            secondaryContainer = accent.containerColor.copy(alpha = 0.7f),
-            onSecondaryContainer = Color.White,
+            primary = accent.darkPrimary,
+            onPrimary = accent.darkOnPrimary,
+            primaryContainer = accent.darkContainer,
+            onPrimaryContainer = accent.darkOnContainer,
+            secondary = accent.darkPrimary.copy(alpha = 0.85f),
+            onSecondary = accent.darkOnPrimary,
+            secondaryContainer = accent.darkContainer.copy(alpha = 0.7f),
+            onSecondaryContainer = accent.darkOnContainer,
             tertiary = CategoryBills,
             onTertiary = Color(0xFF003822),
             tertiaryContainer = CategoryBillsBg,
@@ -55,34 +55,40 @@ fun getAppColorScheme(
             surfaceVariant = surfaceVariant,
             onSurfaceVariant = ElegantTextSecondary,
             outline = border,
+            outlineVariant = border.copy(alpha = 0.5f),
+            surfaceContainerHigh = surfaceVariant,
+            surfaceContainerLowest = bg,
             error = StatusDanger,
-            onError = Color(0xFF601410),
-            errorContainer = Color(0xFF8C1D18),
-            onErrorContainer = CategoryUrgent
+            onError = Color.White,
+            errorContainer = Color(0xFF451A1A),
+            onErrorContainer = Color(0xFFFCA5A5)
         )
     } else {
-        // Minimal Light Theme
+        // High-contrast, clean modern Light Theme
         lightColorScheme(
-            primary = accent.primaryColor,
-            onPrimary = Color.White,
-            primaryContainer = accent.primaryColor.copy(alpha = 0.15f),
-            onPrimaryContainer = accent.onPrimaryColor,
-            secondary = accent.primaryColor.copy(alpha = 0.7f),
+            primary = accent.lightPrimary,
+            onPrimary = accent.lightOnPrimary,
+            primaryContainer = accent.lightContainer,
+            onPrimaryContainer = accent.lightOnContainer,
+            secondary = accent.lightPrimary.copy(alpha = 0.85f),
             onSecondary = Color.White,
-            secondaryContainer = accent.containerColor.copy(alpha = 0.2f),
-            onSecondaryContainer = Color(0xFF1E1B4B),
-            tertiary = Color(0xFF059669),
+            secondaryContainer = accent.lightContainer,
+            onSecondaryContainer = accent.lightOnContainer,
+            tertiary = LightCategoryBills,
             onTertiary = Color.White,
-            tertiaryContainer = Color(0xFFD1FAE5),
-            onTertiaryContainer = Color(0xFF065F46),
-            background = Color(0xFFF8FAFC),
-            onBackground = Color(0xFF0F172A),
-            surface = Color(0xFFFFFFFF),
-            onSurface = Color(0xFF0F172A),
-            surfaceVariant = Color(0xFFF1F5F9),
-            onSurfaceVariant = Color(0xFF64748B),
-            outline = Color(0xFFE2E8F0),
-            error = Color(0xFFDC2626),
+            tertiaryContainer = LightCategoryBillsBg,
+            onTertiaryContainer = LightCategoryBills,
+            background = LightBackground,
+            onBackground = LightTextPrimary,
+            surface = LightSurface,
+            onSurface = LightTextPrimary,
+            surfaceVariant = LightSurfaceVariant,
+            onSurfaceVariant = LightTextSecondary,
+            outline = LightBorder,
+            outlineVariant = LightBorder.copy(alpha = 0.6f),
+            surfaceContainerHigh = LightSurfaceVariant,
+            surfaceContainerLowest = LightBackground,
+            error = StatusDanger,
             onError = Color.White,
             errorContainer = Color(0xFFFEE2E2),
             onErrorContainer = Color(0xFF991B1B)

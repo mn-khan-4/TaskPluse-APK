@@ -218,6 +218,7 @@ object GeminiTaskParser {
             lower.contains("urgent") || lower.contains("asap") || lower.contains("immediately") || lower.contains("emergency") || lower.contains("critical") -> TaskPriority.URGENT
             lower.contains("high priority") || lower.contains("very important") || lower.contains("crucial") -> TaskPriority.HIGH
             lower.contains("low priority") || lower.contains("whenever") || lower.contains("someday") -> TaskPriority.LOW
+            lower.contains("mid priority") || lower.contains("medium priority") || lower.contains("med priority") || lower.contains("normal priority") -> TaskPriority.MEDIUM
             else -> TaskPriority.MEDIUM
         }
 

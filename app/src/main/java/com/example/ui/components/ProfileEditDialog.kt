@@ -15,10 +15,24 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Bolt
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Flag
+import androidx.compose.material.icons.filled.Folder
+import androidx.compose.material.icons.filled.Lightbulb
+import androidx.compose.material.icons.filled.Palette
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Psychology
+import androidx.compose.material.icons.filled.RocketLaunch
+import androidx.compose.material.icons.filled.Security
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Work
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -38,6 +52,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -45,7 +60,22 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.example.data.model.UserAccount
 
-private val AVAILABLE_EMOJIS = listOf("⚡", "🚀", "💼", "🎯", "⭐", "🔥", "👑", "💡", "🧠", "✨", "🏆", "🌟", "🎨", "🌿")
+private data class AvatarOption(val id: String, val icon: ImageVector)
+
+private val AVATAR_OPTIONS = listOf(
+    AvatarOption("person", Icons.Default.Person),
+    AvatarOption("work", Icons.Default.Work),
+    AvatarOption("bolt", Icons.Default.Bolt),
+    AvatarOption("star", Icons.Default.Star),
+    AvatarOption("rocket", Icons.Default.RocketLaunch),
+    AvatarOption("lightbulb", Icons.Default.Lightbulb),
+    AvatarOption("palette", Icons.Default.Palette),
+    AvatarOption("psychology", Icons.Default.Psychology),
+    AvatarOption("favorite", Icons.Default.Favorite),
+    AvatarOption("flag", Icons.Default.Flag),
+    AvatarOption("check", Icons.Default.CheckCircle),
+    AvatarOption("security", Icons.Default.Security)
+)
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -57,12 +87,13 @@ fun ProfileEditDialog(
     var name by remember { mutableStateOf(currentUser.displayName) }
     var email by remember { mutableStateOf(currentUser.email) }
     var role by remember { mutableStateOf(currentUser.role) }
-    var selectedEmoji by remember { mutableStateOf(currentUser.avatarEmoji) }
+    var selectedAvatarId by remember { mutableStateOf(currentUser.avatarEmoji.ifBlank { "person" }) }
 
     Dialog(onDismissRequest = onDismiss) {
         Surface(
             modifier = Modifier
                 .fillMaxWidth()
+                .widthIn(max = 480.dp)
                 .clip(RoundedCornerShape(24.dp))
                 .testTag("profile_edit_dialog"),
             color = MaterialTheme.colorScheme.surface,
@@ -88,7 +119,9 @@ fun ProfileEditDialog(
                     )
                     IconButton(
                         onClick = onDismiss,
-                        modifier = Modifier.size(32.dp).testTag("close_profile_dialog")
+                        modifier = Modifier
+                            .size(32.dp)
+                            .testTag("close_profile_dialog")
                     ) {
                         Icon(
                             imageVector = Icons.Default.Close,
@@ -102,7 +135,7 @@ fun ProfileEditDialog(
 
                 // Avatar Selector
                 Text(
-                    text = "Choose Avatar",
+                    text = "Choose Profile Icon",
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.SemiBold
@@ -114,11 +147,11 @@ fun ProfileEditDialog(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    AVAILABLE_EMOJIS.forEach { emoji ->
-                        val isSelected = emoji == selectedEmoji
+                    AVATAR_OPTIONS.forEach { option ->
+                        val isSelected = option.id == selectedAvatarId
                         Box(
                             modifier = Modifier
-                                .size(44.dp)
+                                .size(42.dp)
                                 .clip(CircleShape)
                                 .background(
                                     if (isSelected) MaterialTheme.colorScheme.primaryContainer
@@ -129,13 +162,15 @@ fun ProfileEditDialog(
                                     color = if (isSelected) MaterialTheme.colorScheme.primary else Color.Transparent,
                                     shape = CircleShape
                                 )
-                                .clickable { selectedEmoji = emoji }
-                                .testTag("avatar_emoji_$emoji"),
+                                .clickable { selectedAvatarId = option.id }
+                                .testTag("avatar_option_${option.id}"),
                             contentAlignment = Alignment.Center
                         ) {
-                            Text(
-                                text = emoji,
-                                fontSize = 20.sp
+                            Icon(
+                                imageVector = option.icon,
+                                contentDescription = null,
+                                tint = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.size(20.dp)
                             )
                         }
                     }
@@ -216,7 +251,7 @@ fun ProfileEditDialog(
                                 name.trim().ifEmpty { currentUser.displayName },
                                 email.trim().ifEmpty { currentUser.email },
                                 role.trim().ifEmpty { currentUser.role },
-                                selectedEmoji,
+                                selectedAvatarId,
                                 currentUser.avatarColorIndex
                             )
                         },

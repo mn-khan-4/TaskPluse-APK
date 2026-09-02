@@ -16,60 +16,99 @@ enum class AppThemeMode(val displayName: String) {
 
 enum class AppAccentColor(
     val displayName: String,
-    val primaryColor: Color,
-    val containerColor: Color,
-    val onPrimaryColor: Color,
+    val lightPrimary: Color,
+    val lightContainer: Color,
+    val lightOnPrimary: Color,
+    val lightOnContainer: Color,
+    val darkPrimary: Color,
+    val darkContainer: Color,
+    val darkOnPrimary: Color,
+    val darkOnContainer: Color,
     val hexCode: String
 ) {
     LAVENDER(
-        displayName = "Lavender Bloom",
-        primaryColor = Color(0xFFD0BCFF),
-        containerColor = Color(0xFF4F378B),
-        onPrimaryColor = Color(0xFF381E72),
-        hexCode = "#D0BCFF"
+        displayName = "Royal Violet",
+        lightPrimary = Color(0xFF6366F1),
+        lightContainer = Color(0xFFEEF2FF),
+        lightOnPrimary = Color.White,
+        lightOnContainer = Color(0xFF312E81),
+        darkPrimary = Color(0xFFA78BFA),
+        darkContainer = Color(0xFF4C1D95),
+        darkOnPrimary = Color(0xFF1E1B4B),
+        darkOnContainer = Color(0xFFEDE9FE),
+        hexCode = "#6366F1"
     ),
     EMERALD(
-        displayName = "Emerald Mint",
-        primaryColor = Color(0xFF34D399),
-        containerColor = Color(0xFF065F46),
-        onPrimaryColor = Color(0xFF022C22),
-        hexCode = "#34D399"
+        displayName = "Fresh Emerald",
+        lightPrimary = Color(0xFF059669),
+        lightContainer = Color(0xFFD1FAE5),
+        lightOnPrimary = Color.White,
+        lightOnContainer = Color(0xFF064E3B),
+        darkPrimary = Color(0xFF34D399),
+        darkContainer = Color(0xFF064E3B),
+        darkOnPrimary = Color(0xFF022C22),
+        darkOnContainer = Color(0xFFD1FAE5),
+        hexCode = "#059669"
     ),
     CYAN(
-        displayName = "Electric Cyan",
-        primaryColor = Color(0xFF38BDF8),
-        containerColor = Color(0xFF075985),
-        onPrimaryColor = Color(0xFF082F49),
-        hexCode = "#38BDF8"
+        displayName = "Ocean Azure",
+        lightPrimary = Color(0xFF0284C7),
+        lightContainer = Color(0xFFE0F2FE),
+        lightOnPrimary = Color.White,
+        lightOnContainer = Color(0xFF075985),
+        darkPrimary = Color(0xFF38BDF8),
+        darkContainer = Color(0xFF0369A1),
+        darkOnPrimary = Color(0xFF082F49),
+        darkOnContainer = Color(0xFFE0F2FE),
+        hexCode = "#0284C7"
     ),
     AMBER(
-        displayName = "Solar Amber",
-        primaryColor = Color(0xFFFBBF24),
-        containerColor = Color(0xFF78350F),
-        onPrimaryColor = Color(0xFF451A03),
-        hexCode = "#FBBF24"
+        displayName = "Sunset Amber",
+        lightPrimary = Color(0xFFD97706),
+        lightContainer = Color(0xFFFEF3C7),
+        lightOnPrimary = Color.White,
+        lightOnContainer = Color(0xFF78350F),
+        darkPrimary = Color(0xFFFBBF24),
+        darkContainer = Color(0xFF78350F),
+        darkOnPrimary = Color(0xFF451A03),
+        darkOnContainer = Color(0xFFFEF3C7),
+        hexCode = "#D97706"
     ),
     ROSE(
-        displayName = "Rose Coral",
-        primaryColor = Color(0xFFF472B6),
-        containerColor = Color(0xFF831843),
-        onPrimaryColor = Color(0xFF500724),
-        hexCode = "#F472B6"
+        displayName = "Crimson Rose",
+        lightPrimary = Color(0xFFE11D48),
+        lightContainer = Color(0xFFFFE4E6),
+        lightOnPrimary = Color.White,
+        lightOnContainer = Color(0xFF881337),
+        darkPrimary = Color(0xFFF472B6),
+        darkContainer = Color(0xFF831843),
+        darkOnPrimary = Color(0xFF500724),
+        darkOnContainer = Color(0xFFFFE4E6),
+        hexCode = "#E11D48"
     ),
     INDIGO(
-        displayName = "Royal Indigo",
-        primaryColor = Color(0xFF818CF8),
-        containerColor = Color(0xFF3730A3),
-        onPrimaryColor = Color(0xFF1E1B4B),
-        hexCode = "#818CF8"
-    )
+        displayName = "Deep Indigo",
+        lightPrimary = Color(0xFF4338CA),
+        lightContainer = Color(0xFFEEF2FF),
+        lightOnPrimary = Color.White,
+        lightOnContainer = Color(0xFF1E1B4B),
+        darkPrimary = Color(0xFF818CF8),
+        darkContainer = Color(0xFF312E81),
+        darkOnPrimary = Color(0xFF1E1B4B),
+        darkOnContainer = Color(0xFFEEF2FF),
+        hexCode = "#4338CA"
+    );
+
+    val primaryColor: Color get() = lightPrimary
+    val containerColor: Color get() = lightContainer
+    val onPrimaryColor: Color get() = lightOnPrimary
 }
 
 data class UserProfile(
     val name: String = "Alex Johnson",
     val email: String = "noumanjamil2004@gmail.com",
     val role: String = "Productivity Champion",
-    val avatarEmoji: String = "⚡",
+    val avatarEmoji: String = "A",
     val avatarColorIndex: Int = 0
 )
 

@@ -1,8 +1,13 @@
 package com.example.ui.components
 
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -17,20 +22,23 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CloudDone
-import androidx.compose.material.icons.filled.CloudSync
+import androidx.compose.material.icons.filled.AccountBalanceWallet
 import androidx.compose.material.icons.filled.Mic
-import androidx.compose.material.icons.filled.SyncLock
+import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material.icons.filled.Today
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -42,6 +50,7 @@ import com.example.ui.theme.CategoryUrgent
 import com.example.ui.theme.CategoryUrgentBg
 import com.example.ui.theme.CategoryUrgentBorder
 import com.example.ui.theme.CategoryWorkBg
+import com.example.ui.theme.StatusDanger
 import com.example.ui.viewmodel.TaskStats
 import java.util.Calendar
 
@@ -63,6 +72,19 @@ fun StatsDashboardHeader(
     }
 
     val firstName = currentUser.displayName.split(" ").firstOrNull() ?: "User"
+    val avatarInitial = currentUser.displayName.firstOrNull()?.uppercase() ?: "U"
+
+    // Gentle pulse animation for the Hero Mic
+    val infiniteTransition = rememberInfiniteTransition(label = "hero_mic_pulse")
+    val heroPulseScale by infiniteTransition.animateFloat(
+        initialValue = 1f,
+        targetValue = 1.08f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(1500, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "pulse_scale"
+    )
 
     Column(
         modifier = modifier
@@ -90,8 +112,8 @@ fun StatsDashboardHeader(
                     Surface(
                         shape = RoundedCornerShape(10.dp),
                         color = when (syncState) {
-                            is SyncState.Synced -> Color(0xFF10B981).copy(alpha = 0.18f)
-                            is SyncState.Syncing -> Color(0xFF38BDF8).copy(alpha = 0.18f)
+                            is SyncState.Synced -> Color(0xFF10B981).copy(alpha = 0.15f)
+                            is SyncState.Syncing -> Color(0xFF38BDF8).copy(alpha = 0.15f)
                             else -> MaterialTheme.colorScheme.surfaceVariant
                         }
                     ) {
@@ -114,9 +136,9 @@ fun StatsDashboardHeader(
                             Spacer(modifier = Modifier.width(4.dp))
                             Text(
                                 text = when (syncState) {
-                                    is SyncState.Synced -> "Cloud"
+                                    is SyncState.Synced -> "Cloud Synced"
                                     is SyncState.Syncing -> "Syncing"
-                                    else -> "Private DB"
+                                    else -> "Local Mode"
                                 },
                                 fontSize = 9.sp,
                                 fontWeight = FontWeight.Bold,
@@ -134,15 +156,15 @@ fun StatsDashboardHeader(
                     text = "$greeting, $firstName",
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onSurface
+                    color = MaterialTheme.colorScheme.onBackground
                 )
             }
 
             // User Profile Avatar & Switch Badge
             Surface(
                 shape = RoundedCornerShape(20.dp),
-                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f),
-                border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)),
+                color = MaterialTheme.colorScheme.surface,
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.4f)),
                 modifier = Modifier
                     .clip(RoundedCornerShape(20.dp))
                     .clickable { onProfileClick() }
@@ -156,12 +178,14 @@ fun StatsDashboardHeader(
                         modifier = Modifier
                             .size(32.dp)
                             .clip(CircleShape)
-                            .background(MaterialTheme.colorScheme.primaryContainer),
+                            .background(MaterialTheme.colorScheme.primary),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = currentUser.avatarEmoji,
-                            fontSize = 16.sp
+                            text = avatarInitial,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onPrimary
                         )
                     }
                     Spacer(modifier = Modifier.width(6.dp))
@@ -192,7 +216,7 @@ fun StatsDashboardHeader(
                 .testTag("tap_to_speak_hero_card"),
             shape = RoundedCornerShape(24.dp),
             color = MaterialTheme.colorScheme.surface,
-            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.5f))
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
         ) {
             Column(
                 modifier = Modifier
@@ -200,18 +224,18 @@ fun StatsDashboardHeader(
                     .padding(vertical = 22.dp, horizontal = 16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // Mic Floating Glowing Circle
+                // Mic Floating Glowing Circle with scale animation
                 Box(
                     modifier = Modifier
-                        .size(64.dp)
+                        .scale(heroPulseScale)
+                        .size(60.dp)
                         .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.primaryContainer)
-                        .shadow(elevation = 8.dp, shape = CircleShape, spotColor = Color.Black),
+                        .background(MaterialTheme.colorScheme.primaryContainer),
                     contentAlignment = Alignment.Center
                 ) {
                     Box(
                         modifier = Modifier
-                            .size(34.dp)
+                            .size(36.dp)
                             .clip(CircleShape)
                             .background(MaterialTheme.colorScheme.primary),
                         contentAlignment = Alignment.Center
@@ -252,10 +276,11 @@ fun StatsDashboardHeader(
             // Card 1: Due Today
             MetricCard(
                 modifier = Modifier.weight(1f),
-                icon = "⏰",
+                icon = Icons.Default.Today,
                 value = "${stats.dueTodayCount}",
                 label = "Due Today",
                 highlightColor = MaterialTheme.colorScheme.primary,
+                containerBg = MaterialTheme.colorScheme.surface,
                 onClick = { onCategoryClick(TaskCategory.PERSONAL) },
                 testTag = "metric_due_today"
             )
@@ -263,12 +288,12 @@ fun StatsDashboardHeader(
             // Card 2: Urgent
             MetricCard(
                 modifier = Modifier.weight(1f),
-                icon = "🔥",
+                icon = Icons.Default.Warning,
                 value = "${stats.urgentCount}",
                 label = "Urgent",
-                highlightColor = CategoryUrgent,
-                containerBg = CategoryUrgentBg,
-                borderStroke = BorderStroke(1.dp, CategoryUrgentBorder),
+                highlightColor = MaterialTheme.colorScheme.error,
+                containerBg = MaterialTheme.colorScheme.surface,
+                borderStroke = BorderStroke(1.dp, MaterialTheme.colorScheme.error.copy(alpha = 0.4f)),
                 onClick = { onCategoryClick(TaskCategory.URGENT) },
                 testTag = "metric_urgent"
             )
@@ -276,11 +301,11 @@ fun StatsDashboardHeader(
             // Card 3: Unpaid Bills
             MetricCard(
                 modifier = Modifier.weight(1f),
-                icon = "💰",
+                icon = Icons.Default.AccountBalanceWallet,
                 value = if (stats.unpaidBillsCount > 0) "$${String.format("%.0f", stats.unpaidBillsTotal)}" else "$0",
                 label = "${stats.unpaidBillsCount} Unpaid",
-                highlightColor = MaterialTheme.colorScheme.secondary,
-                containerBg = CategoryWorkBg,
+                highlightColor = MaterialTheme.colorScheme.tertiary,
+                containerBg = MaterialTheme.colorScheme.surface,
                 onClick = { onCategoryClick(TaskCategory.BILLS) },
                 testTag = "metric_bills"
             )
@@ -291,12 +316,12 @@ fun StatsDashboardHeader(
 @Composable
 private fun MetricCard(
     modifier: Modifier = Modifier,
-    icon: String,
+    icon: ImageVector,
     value: String,
     label: String,
     highlightColor: Color,
     containerBg: Color = MaterialTheme.colorScheme.surface,
-    borderStroke: BorderStroke = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)),
+    borderStroke: BorderStroke = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
     onClick: () -> Unit,
     testTag: String
 ) {
@@ -319,7 +344,12 @@ private fun MetricCard(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                Text(text = icon, fontSize = 14.sp)
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    tint = highlightColor,
+                    modifier = Modifier.size(16.dp)
+                )
                 Text(
                     text = value,
                     style = MaterialTheme.typography.titleMedium,

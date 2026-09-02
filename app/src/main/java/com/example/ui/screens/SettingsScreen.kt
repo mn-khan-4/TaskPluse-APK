@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -20,6 +21,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -78,6 +80,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.data.local.AppAccentColor
@@ -144,12 +147,18 @@ fun SettingsScreen(
         onSignOut = { viewModel.signOut() }
     )
 
-    LazyColumn(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(horizontal = 20.dp),
-        verticalArrangement = Arrangement.spacedBy(20.dp)
+    Box(
+        modifier = modifier.fillMaxSize(),
+        contentAlignment = Alignment.TopCenter
     ) {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .widthIn(max = 760.dp)
+                .padding(horizontal = 20.dp),
+            contentPadding = PaddingValues(bottom = 90.dp),
+            verticalArrangement = Arrangement.spacedBy(20.dp)
+        ) {
         item {
             Spacer(modifier = Modifier.height(8.dp))
             Text(
@@ -184,18 +193,21 @@ fun SettingsScreen(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        // Emoji Avatar with accent ring
+                        // Initial Avatar with accent ring
+                        val initial = currentUser.displayName.firstOrNull()?.uppercase() ?: "U"
                         Box(
                             modifier = Modifier
                                 .size(64.dp)
                                 .clip(CircleShape)
-                                .background(MaterialTheme.colorScheme.primaryContainer)
-                                .border(2.dp, MaterialTheme.colorScheme.primary, CircleShape),
+                                .background(MaterialTheme.colorScheme.primary)
+                                .border(2.dp, MaterialTheme.colorScheme.primaryContainer, CircleShape),
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
-                                text = currentUser.avatarEmoji,
-                                fontSize = 30.sp
+                                text = initial,
+                                fontSize = 26.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onPrimary
                             )
                         }
 
@@ -237,21 +249,40 @@ fun SettingsScreen(
                                         else -> MaterialTheme.colorScheme.surfaceVariant
                                     }
                                 ) {
-                                    Text(
-                                        text = when (syncState) {
-                                            is SyncState.Synced -> "🟢 Cloud"
-                                            is SyncState.Syncing -> "🔄 Syncing"
-                                            else -> "🔒 Private DB"
-                                        },
+                                    Row(
                                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
-                                        style = MaterialTheme.typography.labelSmall,
-                                        color = when (syncState) {
-                                            is SyncState.Synced -> Color(0xFF10B981)
-                                            is SyncState.Syncing -> Color(0xFF38BDF8)
-                                            else -> MaterialTheme.colorScheme.onSurfaceVariant
-                                        },
-                                        fontWeight = FontWeight.SemiBold
-                                    )
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                    ) {
+                                        Icon(
+                                            imageVector = when (syncState) {
+                                                is SyncState.Synced -> Icons.Default.CloudDone
+                                                is SyncState.Syncing -> Icons.Default.Sync
+                                                else -> Icons.Default.Lock
+                                            },
+                                            contentDescription = null,
+                                            tint = when (syncState) {
+                                                is SyncState.Synced -> Color(0xFF10B981)
+                                                is SyncState.Syncing -> Color(0xFF38BDF8)
+                                                else -> MaterialTheme.colorScheme.onSurfaceVariant
+                                            },
+                                            modifier = Modifier.size(12.dp)
+                                        )
+                                        Text(
+                                            text = when (syncState) {
+                                                is SyncState.Synced -> "Cloud"
+                                                is SyncState.Syncing -> "Syncing"
+                                                else -> "Private DB"
+                                            },
+                                            style = MaterialTheme.typography.labelSmall,
+                                            color = when (syncState) {
+                                                is SyncState.Synced -> Color(0xFF10B981)
+                                                is SyncState.Syncing -> Color(0xFF38BDF8)
+                                                else -> MaterialTheme.colorScheme.onSurfaceVariant
+                                            },
+                                            fontWeight = FontWeight.SemiBold
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -652,7 +683,12 @@ fun SettingsScreen(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
+                        Row(
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(end = 12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
                             Surface(
                                 shape = RoundedCornerShape(12.dp),
                                 color = MaterialTheme.colorScheme.primaryContainer,
@@ -668,17 +704,21 @@ fun SettingsScreen(
                                 }
                             }
                             Spacer(modifier = Modifier.width(12.dp))
-                            Column {
+                            Column(modifier = Modifier.weight(1f)) {
                                 Text(
                                     text = "Google Calendar Sync",
                                     style = MaterialTheme.typography.titleMedium,
                                     fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.onSurface
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
                                 )
                                 Text(
                                     text = if (calendarPrefs.isConnected) "Connected: ${calendarPrefs.calendarEmail}" else "Not Connected",
                                     style = MaterialTheme.typography.bodySmall,
-                                    color = if (calendarPrefs.isConnected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                                    color = if (calendarPrefs.isConnected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
                                 )
                             }
                         }
@@ -690,7 +730,7 @@ fun SettingsScreen(
                             border = BorderStroke(1.dp, if (calendarPrefs.isConnected) MaterialTheme.colorScheme.primary.copy(alpha = 0.5f) else MaterialTheme.colorScheme.outline.copy(alpha = 0.3f))
                         ) {
                             Row(
-                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
+                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 if (calendarPrefs.isConnected) {
@@ -705,13 +745,15 @@ fun SettingsScreen(
                                         text = "Active",
                                         style = MaterialTheme.typography.labelSmall,
                                         fontWeight = FontWeight.Bold,
-                                        color = MaterialTheme.colorScheme.primary
+                                        color = MaterialTheme.colorScheme.primary,
+                                        maxLines = 1
                                     )
                                 } else {
                                     Text(
                                         text = "Disconnected",
                                         style = MaterialTheme.typography.labelSmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        maxLines = 1
                                     )
                                 }
                             }
@@ -726,7 +768,11 @@ fun SettingsScreen(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Column(modifier = Modifier.weight(1f)) {
+                        Column(
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(end = 12.dp)
+                        ) {
                             Text(
                                 text = "Auto-Add Reminders to Calendar",
                                 style = MaterialTheme.typography.bodyMedium,
@@ -781,7 +827,9 @@ fun SettingsScreen(
                             Text(
                                 text = "Sync All Reminders",
                                 style = MaterialTheme.typography.labelLarge,
-                                fontWeight = FontWeight.SemiBold
+                                fontWeight = FontWeight.SemiBold,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
                             )
                         }
 
@@ -804,7 +852,10 @@ fun SettingsScreen(
                                 modifier = Modifier.size(16.dp)
                             )
                             Spacer(modifier = Modifier.width(6.dp))
-                            Text("Open App")
+                            Text(
+                                text = "Open App",
+                                maxLines = 1
+                            )
                         }
                     }
 
@@ -817,12 +868,14 @@ fun SettingsScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .testTag("btn_disconnect_google_calendar"),
-                            shape = RoundedCornerShape(12.dp)
+                            shape = RoundedCornerShape(12.dp),
+                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.error.copy(alpha = 0.5f))
                         ) {
                             Text(
-                                text = "Disconnect Calendar (${calendarPrefs.calendarEmail})",
+                                text = "Disconnect Calendar",
                                 style = MaterialTheme.typography.labelMedium,
-                                color = MaterialTheme.colorScheme.error
+                                color = MaterialTheme.colorScheme.error,
+                                fontWeight = FontWeight.SemiBold
                             )
                         }
                     } else {
@@ -844,7 +897,7 @@ fun SettingsScreen(
                             )
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
-                                text = "Connect Google Calendar (${currentUser.email})",
+                                text = "Connect Google Calendar",
                                 fontWeight = FontWeight.SemiBold
                             )
                         }
@@ -937,6 +990,7 @@ fun SettingsScreen(
             Spacer(modifier = Modifier.height(60.dp))
         }
     }
+}
 }
 
 @Composable

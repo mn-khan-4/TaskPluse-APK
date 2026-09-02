@@ -57,7 +57,7 @@ enum class TaskType(val displayName: String) {
 
 enum class TaskPriority(val displayName: String, val rank: Int) {
     LOW("Low", 1),
-    MEDIUM("Medium", 2),
+    MEDIUM("Mid", 2),
     HIGH("High", 3),
     URGENT("Urgent", 4);
 
@@ -70,6 +70,7 @@ enum class TaskPriority(val displayName: String, val rank: Int) {
                     clean.contains("URGENT") || clean.contains("CRITICAL") || clean.contains("ASAP") -> URGENT
                     clean.contains("HIGH") || clean.contains("IMPORTANT") -> HIGH
                     clean.contains("LOW") -> LOW
+                    clean.contains("MID") || clean.contains("MED") || clean.contains("NORMAL") -> MEDIUM
                     else -> MEDIUM
                 }
         }

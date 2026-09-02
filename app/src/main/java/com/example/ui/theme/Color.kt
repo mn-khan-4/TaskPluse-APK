@@ -2,46 +2,72 @@ package com.example.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-// Elegant Dark Palette (matching design specifications)
-val ElegantBackground = Color(0xFF1C1B1F)
-val ElegantSurface = Color(0xFF2B2930)
-val ElegantSurfaceVariant = Color(0xFF36343B)
+// ==================== DARK PALETTE ====================
+val ElegantBackground = Color(0xFF131118)
+val ElegantSurface = Color(0xFF1E1B24)
+val ElegantSurfaceVariant = Color(0xFF282531)
 val ElegantSurfaceContainer = Color(0xFF332D41)
-val ElegantBorder = Color(0xFF49454F)
+val ElegantBorder = Color(0xFF3F3B4B)
 
 // Accents
-val ElegantPrimary = Color(0xFFD0BCFF)
-val ElegantPrimaryDark = Color(0xFF4F378B)
-val ElegantPrimaryContainer = Color(0xFF4F378B)
-val ElegantOnPrimary = Color(0xFF381E72)
+val ElegantPrimary = Color(0xFFA78BFA)
+val ElegantPrimaryDark = Color(0xFF4C1D95)
+val ElegantPrimaryContainer = Color(0xFF4C1D95)
+val ElegantOnPrimary = Color(0xFF1E1B4B)
 
-val ElegantSecondary = Color(0xFFCCC2DC)
-val ElegantSecondaryContainer = Color(0xFF4A4458)
-val ElegantOnSecondary = Color(0xFF332D41)
+val ElegantSecondary = Color(0xFFCBD5E1)
+val ElegantSecondaryContainer = Color(0xFF334155)
+val ElegantOnSecondary = Color(0xFF0F172A)
 
-val ElegantTextPrimary = Color(0xFFE6E1E5)
-val ElegantTextSecondary = Color(0xFFCAC4D0)
-val ElegantTextMuted = Color(0xFF938F99)
+val ElegantTextPrimary = Color(0xFFF8FAFC)
+val ElegantTextSecondary = Color(0xFF94A3B8)
+val ElegantTextMuted = Color(0xFF64748B)
 
-// Category Semantic Colors (Polished Elegant Tones)
-val CategoryWork = Color(0xFFD0BCFF) // Lavender Purple
-val CategoryWorkBg = Color(0xFF332D41)
-val CategoryPersonal = Color(0xFF80CBC4) // Soft Teal
-val CategoryPersonalBg = Color(0xFF1E3A3A)
-val CategoryUrgent = Color(0xFFF2B8B5) // Soft Coral Red
-val CategoryUrgentBg = Color(0xFF311111)
-val CategoryUrgentBorder = Color(0xFF8C1D18)
-val CategoryBills = Color(0xFFA7F3D0) // Mint Emerald
-val CategoryBillsBg = Color(0xFF143828)
-val CategoryShopping = Color(0xFFFFD54F) // Amber Gold
-val CategoryShoppingBg = Color(0xFF382E12)
-val CategoryHealth = Color(0xFFF48FB1) // Rose
-val CategoryHealthBg = Color(0xFF381827)
-val CategoryOther = Color(0xFF90CAF9) // Soft Blue
-val CategoryOtherBg = Color(0xFF192A3E)
+// ==================== LIGHT PALETTE ====================
+val LightBackground = Color(0xFFF8FAFC)
+val LightSurface = Color(0xFFFFFFFF)
+val LightSurfaceVariant = Color(0xFFF1F5F9)
+val LightBorder = Color(0xFFE2E8F0)
+val LightTextPrimary = Color(0xFF0F172A)
+val LightTextSecondary = Color(0xFF475569)
+val LightTextMuted = Color(0xFF94A3B8)
 
-// Status & Badges
-val StatusSuccess = Color(0xFF34D399)
-val StatusWarning = Color(0xFFFBBF24)
-val StatusDanger = Color(0xFFF87171)
-val StatusInfo = Color(0xFF60A5FA)
+// ==================== CATEGORY PALETTE (DARK) ====================
+val CategoryWork = Color(0xFFA78BFA)
+val CategoryWorkBg = Color(0xFF2E1F4D)
+val CategoryPersonal = Color(0xFF2DD4BF)
+val CategoryPersonalBg = Color(0xFF134E4A)
+val CategoryUrgent = Color(0xFFF87171)
+val CategoryUrgentBg = Color(0xFF451A1A)
+val CategoryUrgentBorder = Color(0xFFDC2626)
+val CategoryBills = Color(0xFF34D399)
+val CategoryBillsBg = Color(0xFF064E3B)
+val CategoryShopping = Color(0xFFFBBF24)
+val CategoryShoppingBg = Color(0xFF451A03)
+val CategoryHealth = Color(0xFFF472B6)
+val CategoryHealthBg = Color(0xFF500724)
+val CategoryOther = Color(0xFF60A5FA)
+val CategoryOtherBg = Color(0xFF1E3A8A)
+
+// ==================== CATEGORY PALETTE (LIGHT) ====================
+val LightCategoryWork = Color(0xFF6366F1)
+val LightCategoryWorkBg = Color(0xFFEEF2FF)
+val LightCategoryPersonal = Color(0xFF0D9488)
+val LightCategoryPersonalBg = Color(0xFFCCFBF1)
+val LightCategoryUrgent = Color(0xFFDC2626)
+val LightCategoryUrgentBg = Color(0xFFFEE2E2)
+val LightCategoryUrgentBorder = Color(0xFFFCA5A5)
+val LightCategoryBills = Color(0xFF059669)
+val LightCategoryBillsBg = Color(0xFFD1FAE5)
+val LightCategoryShopping = Color(0xFFD97706)
+val LightCategoryShoppingBg = Color(0xFFFEF3C7)
+val LightCategoryHealth = Color(0xFFDB2777)
+val LightCategoryHealthBg = Color(0xFFFCE7F3)
+val LightCategoryOther = Color(0xFF2563EB)
+val LightCategoryOtherBg = Color(0xFFDBEAFE)
+
+// ==================== STATUS & BADGES ====================
+val StatusSuccess = Color(0xFF10B981)
+val StatusWarning = Color(0xFFF59E0B)
+val StatusDanger = Color(0xFFEF4444)
+val StatusInfo = Color(0xFF3B82F6)

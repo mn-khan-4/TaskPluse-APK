@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -63,6 +64,7 @@ fun UserSwitchDialog(
         Surface(
             modifier = Modifier
                 .fillMaxWidth()
+                .widthIn(max = 500.dp)
                 .clip(RoundedCornerShape(28.dp))
                 .testTag("user_switch_dialog"),
             color = MaterialTheme.colorScheme.surface,
@@ -144,6 +146,7 @@ fun UserSwitchDialog(
                 ) {
                     items(knownUsers, key = { it.uid }) { user ->
                         val isCurrent = user.uid == currentUser.uid
+                        val initial = user.displayName.firstOrNull()?.uppercase() ?: "U"
 
                         Card(
                             modifier = Modifier
@@ -182,8 +185,10 @@ fun UserSwitchDialog(
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Text(
-                                        text = user.avatarEmoji,
-                                        fontSize = 22.sp
+                                        text = initial,
+                                        fontSize = 18.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = if (isCurrent) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface
                                     )
                                 }
 

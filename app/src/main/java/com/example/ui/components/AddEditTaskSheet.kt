@@ -4,6 +4,7 @@ import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -13,13 +14,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccessTime
-import androidx.compose.material.icons.filled.Alarm
 import androidx.compose.material.icons.filled.AttachMoney
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Close
@@ -58,10 +59,6 @@ import com.example.data.model.TaskCategory
 import com.example.data.model.TaskPriority
 import com.example.data.model.TaskPulseItem
 import com.example.data.model.TaskType
-import com.example.ui.theme.ElegantBackground
-import com.example.ui.theme.ElegantBorder
-import com.example.ui.theme.ElegantPrimary
-import com.example.ui.theme.ElegantSurface
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -95,12 +92,14 @@ fun AddEditTaskSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        containerColor = ElegantSurface,
+        containerColor = MaterialTheme.colorScheme.surface,
         scrimColor = Color.Black.copy(alpha = 0.6f)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
+                .widthIn(max = 640.dp)
+                .align(Alignment.CenterHorizontally)
                 .padding(horizontal = 20.dp)
                 .padding(bottom = 32.dp)
                 .verticalScroll(rememberScrollState())
@@ -135,10 +134,10 @@ fun AddEditTaskSheet(
                     .testTag("input_task_title"),
                 shape = RoundedCornerShape(14.dp),
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = ElegantPrimary,
-                    unfocusedBorderColor = ElegantBorder,
-                    focusedContainerColor = ElegantBackground,
-                    unfocusedContainerColor = ElegantBackground
+                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                    unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                    focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f)
                 )
             )
 
@@ -155,10 +154,10 @@ fun AddEditTaskSheet(
                 maxLines = 3,
                 shape = RoundedCornerShape(14.dp),
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = ElegantPrimary,
-                    unfocusedBorderColor = ElegantBorder,
-                    focusedContainerColor = ElegantBackground,
-                    unfocusedContainerColor = ElegantBackground
+                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                    unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                    focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f)
                 )
             )
 
@@ -182,15 +181,15 @@ fun AddEditTaskSheet(
                         onClick = { selectedType = type },
                         label = { Text(type.displayName) },
                         colors = FilterChipDefaults.filterChipColors(
-                            selectedContainerColor = ElegantPrimary,
-                            selectedLabelColor = Color(0xFF1C1B1F),
-                            containerColor = ElegantBackground,
+                            selectedContainerColor = MaterialTheme.colorScheme.primary,
+                            selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
                             labelColor = MaterialTheme.colorScheme.onSurfaceVariant
                         ),
                         border = FilterChipDefaults.filterChipBorder(
                             enabled = true,
                             selected = isSelected,
-                            borderColor = if (isSelected) ElegantPrimary else ElegantBorder
+                            borderColor = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline
                         )
                     )
                 }
@@ -207,17 +206,17 @@ fun AddEditTaskSheet(
                         value = amountStr,
                         onValueChange = { amountStr = it },
                         label = { Text("Amount ($)") },
-                        leadingIcon = { Icon(Icons.Default.AttachMoney, contentDescription = null, tint = ElegantPrimary) },
+                        leadingIcon = { Icon(Icons.Default.AttachMoney, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                         modifier = Modifier
                             .weight(1f)
                             .testTag("input_bill_amount"),
                         shape = RoundedCornerShape(14.dp),
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = ElegantPrimary,
-                            unfocusedBorderColor = ElegantBorder,
-                            focusedContainerColor = ElegantBackground,
-                            unfocusedContainerColor = ElegantBackground
+                            focusedBorderColor = MaterialTheme.colorScheme.primary,
+                            unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                            focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
+                            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f)
                         )
                     )
                     OutlinedTextField(
@@ -229,10 +228,10 @@ fun AddEditTaskSheet(
                             .testTag("input_bill_payee"),
                         shape = RoundedCornerShape(14.dp),
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = ElegantPrimary,
-                            unfocusedBorderColor = ElegantBorder,
-                            focusedContainerColor = ElegantBackground,
-                            unfocusedContainerColor = ElegantBackground
+                            focusedBorderColor = MaterialTheme.colorScheme.primary,
+                            unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                            focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
+                            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f)
                         )
                     )
                 }
@@ -248,25 +247,41 @@ fun AddEditTaskSheet(
             )
             Spacer(modifier = Modifier.height(6.dp))
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .horizontalScroll(rememberScrollState()),
                 horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
-                TaskCategory.entries.take(4).forEach { cat ->
+                TaskCategory.entries.forEach { cat ->
                     val isSelected = selectedCategory == cat
+                    val catColor = getCategoryColor(cat)
                     FilterChip(
                         selected = isSelected,
                         onClick = { selectedCategory = cat },
-                        label = { Text(cat.displayName) },
+                        label = {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                            ) {
+                                Icon(
+                                    imageVector = getCategoryIcon(cat),
+                                    contentDescription = null,
+                                    modifier = Modifier.size(14.dp),
+                                    tint = if (isSelected) Color.White else catColor
+                                )
+                                Text(cat.displayName)
+                            }
+                        },
                         colors = FilterChipDefaults.filterChipColors(
-                            selectedContainerColor = getCategoryColor(cat),
-                            selectedLabelColor = Color(0xFF1C1B1F),
-                            containerColor = ElegantBackground,
+                            selectedContainerColor = catColor,
+                            selectedLabelColor = Color.White,
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
                             labelColor = MaterialTheme.colorScheme.onSurfaceVariant
                         ),
                         border = FilterChipDefaults.filterChipBorder(
                             enabled = true,
                             selected = isSelected,
-                            borderColor = if (isSelected) getCategoryColor(cat) else ElegantBorder
+                            borderColor = if (isSelected) catColor else MaterialTheme.colorScheme.outline
                         )
                     )
                 }
@@ -292,15 +307,15 @@ fun AddEditTaskSheet(
                         onClick = { selectedPriority = priority },
                         label = { Text(priority.displayName) },
                         colors = FilterChipDefaults.filterChipColors(
-                            selectedContainerColor = ElegantPrimary,
-                            selectedLabelColor = Color(0xFF1C1B1F),
-                            containerColor = ElegantBackground,
+                            selectedContainerColor = MaterialTheme.colorScheme.primary,
+                            selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
                             labelColor = MaterialTheme.colorScheme.onSurfaceVariant
                         ),
                         border = FilterChipDefaults.filterChipBorder(
                             enabled = true,
                             selected = isSelected,
-                            borderColor = if (isSelected) ElegantPrimary else ElegantBorder
+                            borderColor = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline
                         )
                     )
                 }
@@ -343,8 +358,8 @@ fun AddEditTaskSheet(
                         ).show()
                     },
                 shape = RoundedCornerShape(14.dp),
-                color = ElegantBackground,
-                border = BorderStroke(1.dp, ElegantBorder)
+                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
             ) {
                 Row(
                     modifier = Modifier.padding(14.dp),
@@ -355,7 +370,7 @@ fun AddEditTaskSheet(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Icon(Icons.Default.AccessTime, contentDescription = null, tint = ElegantPrimary)
+                        Icon(Icons.Default.AccessTime, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
                         Column {
                             Text(
                                 text = "Due Date & Time",
@@ -395,16 +410,16 @@ fun AddEditTaskSheet(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Icon(Icons.Default.Repeat, contentDescription = null, tint = ElegantPrimary)
+                    Icon(Icons.Default.Repeat, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
                     Text("Recurring Reminder", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface)
                 }
                 Switch(
                     checked = isRecurring,
                     onCheckedChange = { isRecurring = it },
                     colors = SwitchDefaults.colors(
-                        checkedThumbColor = Color(0xFF1C1B1F),
-                        checkedTrackColor = ElegantPrimary,
-                        uncheckedBorderColor = ElegantBorder
+                        checkedThumbColor = MaterialTheme.colorScheme.onPrimary,
+                        checkedTrackColor = MaterialTheme.colorScheme.primary,
+                        uncheckedBorderColor = MaterialTheme.colorScheme.outline
                     )
                 )
             }
@@ -423,7 +438,7 @@ fun AddEditTaskSheet(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Icon(Icons.Default.CalendarMonth, contentDescription = null, tint = ElegantPrimary)
+                    Icon(Icons.Default.CalendarMonth, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
                     Column {
                         Text("Add to Google Calendar", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface)
                         Text("Sync deadline to your calendar", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -433,9 +448,9 @@ fun AddEditTaskSheet(
                     checked = syncToGoogleCalendar,
                     onCheckedChange = { syncToGoogleCalendar = it },
                     colors = SwitchDefaults.colors(
-                        checkedThumbColor = Color(0xFF1C1B1F),
-                        checkedTrackColor = ElegantPrimary,
-                        uncheckedBorderColor = ElegantBorder
+                        checkedThumbColor = MaterialTheme.colorScheme.onPrimary,
+                        checkedTrackColor = MaterialTheme.colorScheme.primary,
+                        uncheckedBorderColor = MaterialTheme.colorScheme.outline
                     )
                 )
             }
@@ -471,8 +486,8 @@ fun AddEditTaskSheet(
                     .testTag("save_task_submit_button"),
                 shape = RoundedCornerShape(16.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = ElegantPrimary,
-                    contentColor = Color(0xFF1C1B1F)
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
                 )
             ) {
                 Text("Save Reminder", fontWeight = FontWeight.Bold, fontSize = 16.sp)

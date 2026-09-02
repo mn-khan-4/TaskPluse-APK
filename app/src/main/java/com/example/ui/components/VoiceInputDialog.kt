@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -30,6 +31,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.MicOff
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.TipsAndUpdates
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -59,13 +61,9 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.example.ai.ParsedTaskResult
+import com.example.data.model.TaskCategory
 import com.example.ui.theme.CategoryBills
 import com.example.ui.theme.CategoryUrgent
-import com.example.ui.theme.ElegantBackground
-import com.example.ui.theme.ElegantBorder
-import com.example.ui.theme.ElegantPrimary
-import com.example.ui.theme.ElegantPrimaryContainer
-import com.example.ui.theme.ElegantSurface
 import com.example.ui.theme.StatusSuccess
 import com.example.ui.viewmodel.TaskPulseViewModel
 import com.example.voice.VoiceState
@@ -102,11 +100,12 @@ fun VoiceInputDialog(
         Surface(
             modifier = Modifier
                 .fillMaxWidth(0.92f)
+                .widthIn(max = 520.dp)
                 .padding(vertical = 24.dp)
                 .testTag("voice_input_dialog"),
             shape = RoundedCornerShape(28.dp),
-            color = ElegantSurface,
-            border = BorderStroke(1.dp, ElegantBorder)
+            color = MaterialTheme.colorScheme.surface,
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
         ) {
             Column(
                 modifier = Modifier
@@ -127,14 +126,14 @@ fun VoiceInputDialog(
                         Icon(
                             imageVector = Icons.Default.AutoAwesome,
                             contentDescription = null,
-                            tint = ElegantPrimary,
+                            tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(18.dp)
                         )
                         Text(
                             text = "AI Voice Assistant",
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
-                            color = ElegantPrimary
+                            color = MaterialTheme.colorScheme.primary
                         )
                     }
 
@@ -156,8 +155,7 @@ fun VoiceInputDialog(
 
                 // Microphone Animated Visualizer
                 Box(
-                    modifier = Modifier
-                        .size(100.dp),
+                    modifier = Modifier.size(100.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     // Outer pulse ring
@@ -167,7 +165,7 @@ fun VoiceInputDialog(
                                 .size(90.dp)
                                 .scale(pulseScale)
                                 .clip(CircleShape)
-                                .background(ElegantPrimary.copy(alpha = 0.2f))
+                                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.2f))
                         )
                     }
 
@@ -176,7 +174,7 @@ fun VoiceInputDialog(
                         modifier = Modifier
                             .size(72.dp)
                             .clip(CircleShape)
-                            .background(if (voiceState is VoiceState.Listening) ElegantPrimaryContainer else ElegantBorder)
+                            .background(if (voiceState is VoiceState.Listening) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant)
                             .clickable {
                                 if (voiceState is VoiceState.Listening) {
                                     viewModel.speechHelper.stopListening()
@@ -190,7 +188,7 @@ fun VoiceInputDialog(
                         Icon(
                             imageVector = if (voiceState is VoiceState.Listening) Icons.Default.Mic else Icons.Default.MicOff,
                             contentDescription = "Microphone",
-                            tint = if (voiceState is VoiceState.Listening) ElegantPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
+                            tint = if (voiceState is VoiceState.Listening) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.size(36.dp)
                         )
                     }
@@ -211,7 +209,7 @@ fun VoiceInputDialog(
                     text = statusText,
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Medium,
-                    color = if (voiceState is VoiceState.Listening) ElegantPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = if (voiceState is VoiceState.Listening) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center
                 )
 
@@ -221,8 +219,8 @@ fun VoiceInputDialog(
                     Surface(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(14.dp),
-                        color = ElegantBackground,
-                        border = BorderStroke(1.dp, ElegantBorder)
+                        color = MaterialTheme.colorScheme.background,
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
                     ) {
                         Text(
                             text = "\"$partialTranscript\"",
@@ -243,13 +241,13 @@ fun VoiceInputDialog(
                     ) {
                         CircularProgressIndicator(
                             modifier = Modifier.size(18.dp),
-                            color = ElegantPrimary,
+                            color = MaterialTheme.colorScheme.primary,
                             strokeWidth = 2.dp
                         )
                         Text(
                             text = "Categorizing & detecting due dates...",
                             style = MaterialTheme.typography.bodySmall,
-                            color = ElegantPrimary
+                            color = MaterialTheme.colorScheme.primary
                         )
                     }
                 }
@@ -260,8 +258,8 @@ fun VoiceInputDialog(
                     Surface(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(18.dp),
-                        color = ElegantBackground,
-                        border = BorderStroke(1.dp, ElegantPrimary.copy(alpha = 0.4f))
+                        color = MaterialTheme.colorScheme.background,
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.4f))
                     ) {
                         Column(
                             modifier = Modifier
@@ -283,7 +281,12 @@ fun VoiceInputDialog(
                                         verticalAlignment = Alignment.CenterVertically,
                                         horizontalArrangement = Arrangement.spacedBy(4.dp)
                                     ) {
-                                        Text(text = getCategoryEmoji(parsed.category), fontSize = 12.sp)
+                                        Icon(
+                                            imageVector = getCategoryIcon(parsed.category),
+                                            contentDescription = null,
+                                            tint = getCategoryColor(parsed.category),
+                                            modifier = Modifier.size(13.dp)
+                                        )
                                         Text(
                                             text = parsed.category.displayName,
                                             fontSize = 11.sp,
@@ -298,7 +301,7 @@ fun VoiceInputDialog(
                                         text = "$${String.format(java.util.Locale.US, "%.2f", parsed.amount)}",
                                         style = MaterialTheme.typography.titleMedium,
                                         fontWeight = FontWeight.Bold,
-                                        color = CategoryBills
+                                        color = getCategoryColor(TaskCategory.BILLS)
                                     )
                                 }
                             }
@@ -313,12 +316,23 @@ fun VoiceInputDialog(
                             )
 
                             if (parsed.confidenceNotes.isNotBlank()) {
-                                Spacer(modifier = Modifier.height(4.dp))
-                                Text(
-                                    text = "💡 ${parsed.confidenceNotes}",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
+                                Spacer(modifier = Modifier.height(6.dp))
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.TipsAndUpdates,
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.primary,
+                                        modifier = Modifier.size(14.dp)
+                                    )
+                                    Text(
+                                        text = parsed.confidenceNotes,
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
                             }
                         }
                     }
@@ -339,7 +353,7 @@ fun VoiceInputDialog(
                                 .height(46.dp),
                             shape = RoundedCornerShape(14.dp),
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = ElegantBorder,
+                                containerColor = MaterialTheme.colorScheme.surfaceVariant,
                                 contentColor = MaterialTheme.colorScheme.onSurface
                             )
                         ) {
@@ -358,8 +372,8 @@ fun VoiceInputDialog(
                                 .testTag("confirm_save_voice_task"),
                             shape = RoundedCornerShape(14.dp),
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = ElegantPrimary,
-                                contentColor = Color(0xFF1C1B1F)
+                                containerColor = MaterialTheme.colorScheme.primary,
+                                contentColor = MaterialTheme.colorScheme.onPrimary
                             )
                         ) {
                             Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp))
@@ -375,7 +389,7 @@ fun VoiceInputDialog(
                     Text(
                         text = if (isManualMode) "Switch to Voice" else "Or type with keyboard",
                         style = MaterialTheme.typography.bodySmall,
-                        color = ElegantPrimary,
+                        color = MaterialTheme.colorScheme.primary,
                         modifier = Modifier
                             .clickable { isManualMode = !isManualMode }
                             .padding(4.dp)
@@ -396,10 +410,10 @@ fun VoiceInputDialog(
                                     .testTag("manual_reminder_input"),
                                 shape = RoundedCornerShape(14.dp),
                                 colors = OutlinedTextFieldDefaults.colors(
-                                    focusedBorderColor = ElegantPrimary,
-                                    unfocusedBorderColor = ElegantBorder,
-                                    focusedContainerColor = ElegantBackground,
-                                    unfocusedContainerColor = ElegantBackground
+                                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                                    unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                                    focusedContainerColor = MaterialTheme.colorScheme.background,
+                                    unfocusedContainerColor = MaterialTheme.colorScheme.background
                                 )
                             )
                             Spacer(modifier = Modifier.height(8.dp))
@@ -415,8 +429,8 @@ fun VoiceInputDialog(
                                     .testTag("parse_manual_text_button"),
                                 shape = RoundedCornerShape(12.dp),
                                 colors = ButtonDefaults.buttonColors(
-                                    containerColor = ElegantPrimary,
-                                    contentColor = Color(0xFF1C1B1F)
+                                    containerColor = MaterialTheme.colorScheme.primary,
+                                    contentColor = MaterialTheme.colorScheme.onPrimary
                                 )
                             ) {
                                 Text("Analyze & Schedule", fontWeight = FontWeight.Bold)

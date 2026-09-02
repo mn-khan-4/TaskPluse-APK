@@ -3,22 +3,26 @@ package com.example.ui.screens
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.Alarm
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.CalendarToday
@@ -32,7 +36,6 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -46,6 +49,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.data.model.TaskPulseItem
@@ -111,304 +115,571 @@ fun ScheduleScreen(
         }
     }
 
-    LazyColumn(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(horizontal = 4.dp),
-        contentPadding = PaddingValues(bottom = 90.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        item {
-            Spacer(modifier = Modifier.height(8.dp))
-            Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-                Text(
-                    text = "Schedule & Deadlines",
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onBackground
-                )
-                Text(
-                    text = "Track approaching due dates & scheduled reminders",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
+    BoxWithConstraints(modifier = modifier.fillMaxSize()) {
+        val isWide = maxWidth >= 760.dp
 
-            Spacer(modifier = Modifier.height(12.dp))
-
-            // Filter Chips
+        if (isWide) {
+            // Dual-Pane Layout for Tablets & Wide Displays
             Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp)
+                    .fillMaxSize()
+                    .padding(16.dp),
+                horizontalArrangement = Arrangement.spacedBy(20.dp)
             ) {
-                listOf(
-                    0 to "All Scheduled",
-                    1 to "Pending",
-                    2 to "Bills Due"
-                ).forEach { (mode, label) ->
-                    val isSelected = filterMode == mode
-                    FilterChip(
-                        selected = isSelected,
-                        onClick = { filterMode = mode },
-                        label = {
-                            Text(
-                                text = label,
-                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
-                            )
-                        },
-                        shape = RoundedCornerShape(12.dp),
-                        colors = FilterChipDefaults.filterChipColors(
-                            selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                            selectedLabelColor = MaterialTheme.colorScheme.primary,
-                            containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                            labelColor = MaterialTheme.colorScheme.onSurface
-                        ),
-                        modifier = Modifier.testTag("schedule_filter_$mode")
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(14.dp))
-
-            // Google Calendar Sync Quick Banner
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp)
-                    .testTag("schedule_google_calendar_banner"),
-                shape = RoundedCornerShape(18.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surface
-                ),
-                border = BorderStroke(1.dp, if (calendarPrefs.isConnected) MaterialTheme.colorScheme.primary.copy(alpha = 0.5f) else MaterialTheme.colorScheme.outline.copy(alpha = 0.35f))
-            ) {
-                Row(
+                // Left Pane: Controls, Calendar Sync & Summary
+                Column(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(14.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
+                        .weight(1f)
+                        .fillMaxHeight()
+                        .verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
+                    Column {
+                        Text(
+                            text = "Schedule & Deadlines",
+                            style = MaterialTheme.typography.headlineMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
+                        Text(
+                            text = "Track approaching due dates & scheduled reminders",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+
+                    // Filter Chips
                     Row(
-                        modifier = Modifier.weight(1f),
-                        verticalAlignment = Alignment.CenterVertically
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.fillMaxWidth()
                     ) {
-                        Surface(
-                            shape = RoundedCornerShape(10.dp),
-                            color = MaterialTheme.colorScheme.primaryContainer,
-                            modifier = Modifier.size(36.dp)
+                        listOf(
+                            0 to "All Scheduled",
+                            1 to "Pending",
+                            2 to "Bills Due"
+                        ).forEach { (mode, label) ->
+                            val isSelected = filterMode == mode
+                            FilterChip(
+                                selected = isSelected,
+                                onClick = { filterMode = mode },
+                                label = {
+                                    Text(
+                                        text = label,
+                                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                                    )
+                                },
+                                shape = RoundedCornerShape(12.dp),
+                                colors = FilterChipDefaults.filterChipColors(
+                                    selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                                    selectedLabelColor = MaterialTheme.colorScheme.primary,
+                                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                    labelColor = MaterialTheme.colorScheme.onSurface
+                                ),
+                                modifier = Modifier.testTag("schedule_filter_$mode")
+                            )
+                        }
+                    }
+
+                    // Google Calendar Sync Quick Banner
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .testTag("schedule_google_calendar_banner"),
+                        shape = RoundedCornerShape(18.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surface
+                        ),
+                        border = BorderStroke(1.dp, if (calendarPrefs.isConnected) MaterialTheme.colorScheme.primary.copy(alpha = 0.5f) else MaterialTheme.colorScheme.outline.copy(alpha = 0.35f))
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(14.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            Box(contentAlignment = Alignment.Center) {
-                                Icon(
-                                    imageVector = Icons.Default.CalendarMonth,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.primary,
-                                    modifier = Modifier.size(20.dp)
-                                )
+                            Row(
+                                modifier = Modifier.weight(1f),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Surface(
+                                    shape = RoundedCornerShape(10.dp),
+                                    color = MaterialTheme.colorScheme.primaryContainer,
+                                    modifier = Modifier.size(36.dp)
+                                ) {
+                                    Box(contentAlignment = Alignment.Center) {
+                                        Icon(
+                                            imageVector = Icons.Default.CalendarMonth,
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.primary,
+                                            modifier = Modifier.size(20.dp)
+                                        )
+                                    }
+                                }
+                                Spacer(modifier = Modifier.width(12.dp))
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = "Google Calendar",
+                                        style = MaterialTheme.typography.titleSmall,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.onSurface,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                    Text(
+                                        text = if (calendarPrefs.isConnected) "Auto-syncing to ${calendarPrefs.calendarEmail}" else "Connect to auto-sync reminders",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = if (calendarPrefs.isConnected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                }
+                            }
+
+                            Spacer(modifier = Modifier.width(8.dp))
+
+                            if (calendarPrefs.isConnected) {
+                                Button(
+                                    onClick = { viewModel.syncAllToGoogleCalendar() },
+                                    shape = RoundedCornerShape(10.dp),
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = MaterialTheme.colorScheme.primary,
+                                        contentColor = MaterialTheme.colorScheme.onPrimary
+                                    ),
+                                    modifier = Modifier.testTag("btn_quick_sync_calendar")
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Sync,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(14.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Text(
+                                        text = "Sync All",
+                                        style = MaterialTheme.typography.labelMedium,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+                            } else {
+                                Button(
+                                    onClick = { viewModel.connectGoogleCalendar() },
+                                    shape = RoundedCornerShape(10.dp),
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                        contentColor = MaterialTheme.colorScheme.primary
+                                    ),
+                                    modifier = Modifier.testTag("btn_quick_connect_calendar")
+                                ) {
+                                    Text(
+                                        text = "Connect",
+                                        style = MaterialTheme.typography.labelMedium,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
                             }
                         }
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Column {
+                    }
+
+                    // Timeline Buckets Overview Card
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(18.dp),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.35f))
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
                             Text(
-                                text = "Google Calendar",
+                                text = "Timeline Summary",
                                 style = MaterialTheme.typography.titleSmall,
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.onSurface
                             )
-                            Text(
-                                text = if (calendarPrefs.isConnected) "Auto-syncing to ${calendarPrefs.calendarEmail}" else "Connect to auto-sync reminders",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = if (calendarPrefs.isConnected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.width(8.dp))
-
-                    if (calendarPrefs.isConnected) {
-                        Button(
-                            onClick = { viewModel.syncAllToGoogleCalendar() },
-                            shape = RoundedCornerShape(10.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.primary,
-                                contentColor = MaterialTheme.colorScheme.onPrimary
-                            ),
-                            modifier = Modifier.testTag("btn_quick_sync_calendar")
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Sync,
-                                contentDescription = null,
-                                modifier = Modifier.size(14.dp)
-                            )
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text(
-                                text = "Sync All",
-                                style = MaterialTheme.typography.labelMedium,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
-                    } else {
-                        Button(
-                            onClick = { viewModel.connectGoogleCalendar() },
-                            shape = RoundedCornerShape(10.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.primaryContainer,
-                                contentColor = MaterialTheme.colorScheme.primary
-                            ),
-                            modifier = Modifier.testTag("btn_quick_connect_calendar")
-                        ) {
-                            Text(
-                                text = "Connect",
-                                style = MaterialTheme.typography.labelMedium,
-                                fontWeight = FontWeight.Bold
-                            )
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text("Overdue", color = if (overdueItems.isNotEmpty()) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant)
+                                Text("${overdueItems.size}", fontWeight = FontWeight.Bold, color = if (overdueItems.isNotEmpty()) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface)
+                            }
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text("Due Today", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Text("${todayItems.size}", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+                            }
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text("Due Tomorrow", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Text("${tomorrowItems.size}", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
+                            }
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text("This Week", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Text("${thisWeekItems.size}", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
+                            }
                         }
                     }
                 }
-            }
-        }
 
-        // ================= OVERDUE SECTION =================
-        if (overdueItems.isNotEmpty()) {
-            item {
-                TimelineSectionHeader(
-                    title = "Overdue & Urgent Attention",
-                    count = overdueItems.size,
-                    isAlert = true
-                )
-            }
-            items(overdueItems, key = { "overdue_${it.id}" }) { item ->
-                TaskItemCard(
-                    item = item,
-                    onToggleStatus = { toggled ->
-                        if (toggled.isBill) viewModel.togglePaid(toggled) else viewModel.toggleCompleted(toggled)
-                    },
-                    onEdit = { viewModel.openAddEdit(it) },
-                    onDelete = { viewModel.deleteItem(it) },
-                    onSnooze = { itm, min -> viewModel.snoozeItem(itm, min) }
-                )
-            }
-        }
-
-        // ================= TODAY SECTION =================
-        if (todayItems.isNotEmpty()) {
-            item {
-                TimelineSectionHeader(
-                    title = "Due Today",
-                    count = todayItems.size
-                )
-            }
-            items(todayItems, key = { "today_${it.id}" }) { item ->
-                TaskItemCard(
-                    item = item,
-                    onToggleStatus = { toggled ->
-                        if (toggled.isBill) viewModel.togglePaid(toggled) else viewModel.toggleCompleted(toggled)
-                    },
-                    onEdit = { viewModel.openAddEdit(it) },
-                    onDelete = { viewModel.deleteItem(it) },
-                    onSnooze = { itm, min -> viewModel.snoozeItem(itm, min) }
-                )
-            }
-        }
-
-        // ================= TOMORROW SECTION =================
-        if (tomorrowItems.isNotEmpty()) {
-            item {
-                TimelineSectionHeader(
-                    title = "Due Tomorrow",
-                    count = tomorrowItems.size
-                )
-            }
-            items(tomorrowItems, key = { "tomorrow_${it.id}" }) { item ->
-                TaskItemCard(
-                    item = item,
-                    onToggleStatus = { toggled ->
-                        if (toggled.isBill) viewModel.togglePaid(toggled) else viewModel.toggleCompleted(toggled)
-                    },
-                    onEdit = { viewModel.openAddEdit(it) },
-                    onDelete = { viewModel.deleteItem(it) },
-                    onSnooze = { itm, min -> viewModel.snoozeItem(itm, min) }
-                )
-            }
-        }
-
-        // ================= THIS WEEK SECTION =================
-        if (thisWeekItems.isNotEmpty()) {
-            item {
-                TimelineSectionHeader(
-                    title = "Upcoming This Week",
-                    count = thisWeekItems.size
-                )
-            }
-            items(thisWeekItems, key = { "week_${it.id}" }) { item ->
-                TaskItemCard(
-                    item = item,
-                    onToggleStatus = { toggled ->
-                        if (toggled.isBill) viewModel.togglePaid(toggled) else viewModel.toggleCompleted(toggled)
-                    },
-                    onEdit = { viewModel.openAddEdit(it) },
-                    onDelete = { viewModel.deleteItem(it) },
-                    onSnooze = { itm, min -> viewModel.snoozeItem(itm, min) }
-                )
-            }
-        }
-
-        // ================= LATER SECTION =================
-        if (laterItems.isNotEmpty()) {
-            item {
-                TimelineSectionHeader(
-                    title = "Later & Future",
-                    count = laterItems.size
-                )
-            }
-            items(laterItems, key = { "later_${it.id}" }) { item ->
-                TaskItemCard(
-                    item = item,
-                    onToggleStatus = { toggled ->
-                        if (toggled.isBill) viewModel.togglePaid(toggled) else viewModel.toggleCompleted(toggled)
-                    },
-                    onEdit = { viewModel.openAddEdit(it) },
-                    onDelete = { viewModel.deleteItem(it) },
-                    onSnooze = { itm, min -> viewModel.snoozeItem(itm, min) }
-                )
-            }
-        }
-
-        if (scheduledItems.isEmpty()) {
-            item {
-                Surface(
+                // Right Pane: Timeline Items Stream
+                LazyColumn(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 32.dp),
-                    shape = RoundedCornerShape(20.dp),
-                    color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                        .weight(1.35f)
+                        .fillMaxHeight(),
+                    contentPadding = PaddingValues(bottom = 32.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    Column(
-                        modifier = Modifier.padding(32.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.CalendarToday,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(48.dp)
-                        )
+                    renderTimelineContent(
+                        overdueItems = overdueItems,
+                        todayItems = todayItems,
+                        tomorrowItems = tomorrowItems,
+                        thisWeekItems = thisWeekItems,
+                        laterItems = laterItems,
+                        scheduledItems = scheduledItems,
+                        viewModel = viewModel
+                    )
+                }
+            }
+        } else {
+            // Single-Column Layout for Mobile
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.TopCenter
+            ) {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .widthIn(max = 700.dp)
+                        .padding(horizontal = 4.dp),
+                    contentPadding = PaddingValues(bottom = 90.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    item {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+                            Text(
+                                text = "Schedule & Deadlines",
+                                style = MaterialTheme.typography.headlineMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onBackground
+                            )
+                            Text(
+                                text = "Track approaching due dates & scheduled reminders",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+
                         Spacer(modifier = Modifier.height(12.dp))
-                        Text(
-                            text = "No Scheduled Deadlines",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(
-                            text = "Add tasks or bills with due dates to see your timeline here",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
+
+                        // Filter Chips
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp)
+                        ) {
+                            listOf(
+                                0 to "All Scheduled",
+                                1 to "Pending",
+                                2 to "Bills Due"
+                            ).forEach { (mode, label) ->
+                                val isSelected = filterMode == mode
+                                FilterChip(
+                                    selected = isSelected,
+                                    onClick = { filterMode = mode },
+                                    label = {
+                                        Text(
+                                            text = label,
+                                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                                        )
+                                    },
+                                    shape = RoundedCornerShape(12.dp),
+                                    colors = FilterChipDefaults.filterChipColors(
+                                        selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                                        selectedLabelColor = MaterialTheme.colorScheme.primary,
+                                        containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                        labelColor = MaterialTheme.colorScheme.onSurface
+                                    ),
+                                    modifier = Modifier.testTag("schedule_filter_$mode")
+                                )
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(14.dp))
+
+                        // Google Calendar Sync Quick Banner
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp)
+                                .testTag("schedule_google_calendar_banner"),
+                            shape = RoundedCornerShape(18.dp),
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.surface
+                            ),
+                            border = BorderStroke(1.dp, if (calendarPrefs.isConnected) MaterialTheme.colorScheme.primary.copy(alpha = 0.5f) else MaterialTheme.colorScheme.outline.copy(alpha = 0.35f))
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(14.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Row(
+                                    modifier = Modifier.weight(1f),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Surface(
+                                        shape = RoundedCornerShape(10.dp),
+                                        color = MaterialTheme.colorScheme.primaryContainer,
+                                        modifier = Modifier.size(36.dp)
+                                    ) {
+                                        Box(contentAlignment = Alignment.Center) {
+                                            Icon(
+                                                imageVector = Icons.Default.CalendarMonth,
+                                                contentDescription = null,
+                                                tint = MaterialTheme.colorScheme.primary,
+                                                modifier = Modifier.size(20.dp)
+                                            )
+                                        }
+                                    }
+                                    Spacer(modifier = Modifier.width(12.dp))
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text(
+                                            text = "Google Calendar",
+                                            style = MaterialTheme.typography.titleSmall,
+                                            fontWeight = FontWeight.Bold,
+                                            color = MaterialTheme.colorScheme.onSurface,
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis
+                                        )
+                                        Text(
+                                            text = if (calendarPrefs.isConnected) "Auto-syncing to ${calendarPrefs.calendarEmail}" else "Connect to auto-sync reminders",
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = if (calendarPrefs.isConnected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis
+                                        )
+                                    }
+                                }
+
+                                Spacer(modifier = Modifier.width(8.dp))
+
+                                if (calendarPrefs.isConnected) {
+                                    Button(
+                                        onClick = { viewModel.syncAllToGoogleCalendar() },
+                                        shape = RoundedCornerShape(10.dp),
+                                        colors = ButtonDefaults.buttonColors(
+                                            containerColor = MaterialTheme.colorScheme.primary,
+                                            contentColor = MaterialTheme.colorScheme.onPrimary
+                                        ),
+                                        modifier = Modifier.testTag("btn_quick_sync_calendar")
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.Sync,
+                                            contentDescription = null,
+                                            modifier = Modifier.size(14.dp)
+                                        )
+                                        Spacer(modifier = Modifier.width(4.dp))
+                                        Text(
+                                            text = "Sync All",
+                                            style = MaterialTheme.typography.labelMedium,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                    }
+                                } else {
+                                    Button(
+                                        onClick = { viewModel.connectGoogleCalendar() },
+                                        shape = RoundedCornerShape(10.dp),
+                                        colors = ButtonDefaults.buttonColors(
+                                            containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                            contentColor = MaterialTheme.colorScheme.primary
+                                        ),
+                                        modifier = Modifier.testTag("btn_quick_connect_calendar")
+                                    ) {
+                                        Text(
+                                            text = "Connect",
+                                            style = MaterialTheme.typography.labelMedium,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                    }
+                                }
+                            }
+                        }
                     }
+
+                    renderTimelineContent(
+                        overdueItems = overdueItems,
+                        todayItems = todayItems,
+                        tomorrowItems = tomorrowItems,
+                        thisWeekItems = thisWeekItems,
+                        laterItems = laterItems,
+                        scheduledItems = scheduledItems,
+                        viewModel = viewModel
+                    )
+                }
+            }
+        }
+    }
+}
+
+private fun androidx.compose.foundation.lazy.LazyListScope.renderTimelineContent(
+    overdueItems: List<TaskPulseItem>,
+    todayItems: List<TaskPulseItem>,
+    tomorrowItems: List<TaskPulseItem>,
+    thisWeekItems: List<TaskPulseItem>,
+    laterItems: List<TaskPulseItem>,
+    scheduledItems: List<TaskPulseItem>,
+    viewModel: TaskPulseViewModel
+) {
+    // ================= OVERDUE SECTION =================
+    if (overdueItems.isNotEmpty()) {
+        item {
+            TimelineSectionHeader(
+                title = "Overdue & Urgent Attention",
+                count = overdueItems.size,
+                isAlert = true
+            )
+        }
+        items(overdueItems, key = { "overdue_${it.id}" }) { item ->
+            TaskItemCard(
+                item = item,
+                onToggleStatus = { toggled ->
+                    if (toggled.isBill) viewModel.togglePaid(toggled) else viewModel.toggleCompleted(toggled)
+                },
+                onEdit = { viewModel.openAddEdit(it) },
+                onDelete = { viewModel.deleteItem(it) },
+                onSnooze = { itm, min -> viewModel.snoozeItem(itm, min) }
+            )
+        }
+    }
+
+    // ================= TODAY SECTION =================
+    if (todayItems.isNotEmpty()) {
+        item {
+            TimelineSectionHeader(
+                title = "Due Today",
+                count = todayItems.size
+            )
+        }
+        items(todayItems, key = { "today_${it.id}" }) { item ->
+            TaskItemCard(
+                item = item,
+                onToggleStatus = { toggled ->
+                    if (toggled.isBill) viewModel.togglePaid(toggled) else viewModel.toggleCompleted(toggled)
+                },
+                onEdit = { viewModel.openAddEdit(it) },
+                onDelete = { viewModel.deleteItem(it) },
+                onSnooze = { itm, min -> viewModel.snoozeItem(itm, min) }
+            )
+        }
+    }
+
+    // ================= TOMORROW SECTION =================
+    if (tomorrowItems.isNotEmpty()) {
+        item {
+            TimelineSectionHeader(
+                title = "Due Tomorrow",
+                count = tomorrowItems.size
+            )
+        }
+        items(tomorrowItems, key = { "tomorrow_${it.id}" }) { item ->
+            TaskItemCard(
+                item = item,
+                onToggleStatus = { toggled ->
+                    if (toggled.isBill) viewModel.togglePaid(toggled) else viewModel.toggleCompleted(toggled)
+                },
+                onEdit = { viewModel.openAddEdit(it) },
+                onDelete = { viewModel.deleteItem(it) },
+                onSnooze = { itm, min -> viewModel.snoozeItem(itm, min) }
+            )
+        }
+    }
+
+    // ================= THIS WEEK SECTION =================
+    if (thisWeekItems.isNotEmpty()) {
+        item {
+            TimelineSectionHeader(
+                title = "Upcoming This Week",
+                count = thisWeekItems.size
+            )
+        }
+        items(thisWeekItems, key = { "week_${it.id}" }) { item ->
+            TaskItemCard(
+                item = item,
+                onToggleStatus = { toggled ->
+                    if (toggled.isBill) viewModel.togglePaid(toggled) else viewModel.toggleCompleted(toggled)
+                },
+                onEdit = { viewModel.openAddEdit(it) },
+                onDelete = { viewModel.deleteItem(it) },
+                onSnooze = { itm, min -> viewModel.snoozeItem(itm, min) }
+            )
+        }
+    }
+
+    // ================= LATER SECTION =================
+    if (laterItems.isNotEmpty()) {
+        item {
+            TimelineSectionHeader(
+                title = "Later & Future",
+                count = laterItems.size
+            )
+        }
+        items(laterItems, key = { "later_${it.id}" }) { item ->
+            TaskItemCard(
+                item = item,
+                onToggleStatus = { toggled ->
+                    if (toggled.isBill) viewModel.togglePaid(toggled) else viewModel.toggleCompleted(toggled)
+                },
+                onEdit = { viewModel.openAddEdit(it) },
+                onDelete = { viewModel.deleteItem(it) },
+                onSnooze = { itm, min -> viewModel.snoozeItem(itm, min) }
+            )
+        }
+    }
+
+    if (scheduledItems.isEmpty()) {
+        item {
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 32.dp),
+                shape = RoundedCornerShape(20.dp),
+                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+            ) {
+                Column(
+                    modifier = Modifier.padding(32.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.CalendarToday,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(48.dp)
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(
+                        text = "No Scheduled Deadlines",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "Add tasks or bills with due dates to see your timeline here",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                 }
             }
         }
