@@ -8,6 +8,7 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -19,20 +20,34 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBalanceWallet
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.CloudDone
+import androidx.compose.material.icons.filled.CloudOff
+import androidx.compose.material.icons.filled.CloudSync
+import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.Mic
+import androidx.compose.material.icons.filled.People
+import androidx.compose.material.icons.filled.PersonAdd
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Today
 import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -62,6 +77,8 @@ fun StatsDashboardHeader(
     onTapToSpeak: () -> Unit,
     onCategoryClick: (TaskCategory) -> Unit,
     onProfileClick: () -> Unit = {},
+    onOpenAuth: () -> Unit = {},
+    onSignOut: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val currentHour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
@@ -73,6 +90,7 @@ fun StatsDashboardHeader(
 
     val firstName = currentUser.displayName.split(" ").firstOrNull() ?: "User"
     val avatarInitial = currentUser.displayName.firstOrNull()?.uppercase() ?: "U"
+    var profileMenuExpanded by remember { mutableStateOf(false) }
 
     // Gentle pulse animation for the Hero Mic
     val infiniteTransition = rememberInfiniteTransition(label = "hero_mic_pulse")
@@ -92,65 +110,20 @@ fun StatsDashboardHeader(
             .padding(horizontal = 16.dp, vertical = 8.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // Top Bar: Assistant label & Greeting + User Switch Button
+        // Top Bar: Clean greeting on left & Minimal profile icon on top right with Dropdown
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        text = "TASKPULSE AI",
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.Bold,
-                        letterSpacing = 1.5.sp,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    // Cloud / Scoped Sync Indicator Chip
-                    Surface(
-                        shape = RoundedCornerShape(10.dp),
-                        color = when (syncState) {
-                            is SyncState.Synced -> Color(0xFF10B981).copy(alpha = 0.15f)
-                            is SyncState.Syncing -> Color(0xFF38BDF8).copy(alpha = 0.15f)
-                            else -> MaterialTheme.colorScheme.surfaceVariant
-                        }
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .size(6.dp)
-                                    .clip(CircleShape)
-                                    .background(
-                                        when (syncState) {
-                                            is SyncState.Synced -> Color(0xFF10B981)
-                                            is SyncState.Syncing -> Color(0xFF38BDF8)
-                                            else -> Color(0xFFF59E0B)
-                                        }
-                                    )
-                            )
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text(
-                                text = when (syncState) {
-                                    is SyncState.Synced -> "Cloud Synced"
-                                    is SyncState.Syncing -> "Syncing"
-                                    else -> "Local Mode"
-                                },
-                                fontSize = 9.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = when (syncState) {
-                                    is SyncState.Synced -> Color(0xFF10B981)
-                                    is SyncState.Syncing -> Color(0xFF38BDF8)
-                                    else -> Color(0xFFF59E0B)
-                                }
-                            )
-                        }
-                    }
-                }
+                Text(
+                    text = "TASKPULSE",
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = 1.5.sp,
+                    color = MaterialTheme.colorScheme.primary
+                )
                 Spacer(modifier = Modifier.height(2.dp))
                 Text(
                     text = "$greeting, $firstName",
@@ -160,49 +133,195 @@ fun StatsDashboardHeader(
                 )
             }
 
-            // User Profile Avatar & Switch Badge
-            Surface(
-                shape = RoundedCornerShape(20.dp),
-                color = MaterialTheme.colorScheme.surface,
-                border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.4f)),
-                modifier = Modifier
-                    .clip(RoundedCornerShape(20.dp))
-                    .clickable { onProfileClick() }
-                    .testTag("header_avatar_btn")
-            ) {
-                Row(
-                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                    verticalAlignment = Alignment.CenterVertically
+            // Minimalist Profile Avatar Button with Dropdown
+            Box {
+                Surface(
+                    shape = CircleShape,
+                    color = MaterialTheme.colorScheme.primaryContainer,
+                    border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.6f)),
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clip(CircleShape)
+                        .clickable { profileMenuExpanded = true }
+                        .testTag("header_avatar_btn")
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .size(32.dp)
-                            .clip(CircleShape)
-                            .background(MaterialTheme.colorScheme.primary),
-                        contentAlignment = Alignment.Center
-                    ) {
+                    Box(contentAlignment = Alignment.Center) {
                         Text(
                             text = avatarInitial,
-                            fontSize = 14.sp,
+                            fontSize = 16.sp,
                             fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onPrimary
+                            color = MaterialTheme.colorScheme.primary
                         )
                     }
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Column {
-                        Text(
-                            text = firstName,
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurface
+                }
+
+                // Sync status indicator dot at bottom right corner of avatar
+                Box(
+                    modifier = Modifier
+                        .size(10.dp)
+                        .align(Alignment.BottomEnd)
+                        .clip(CircleShape)
+                        .background(
+                            when (syncState) {
+                                is SyncState.Synced -> Color(0xFF10B981)
+                                is SyncState.Syncing -> Color(0xFF38BDF8)
+                                else -> Color(0xFFF59E0B)
+                            }
                         )
-                        Text(
-                            text = "Switch ▾",
-                            fontSize = 9.sp,
-                            color = MaterialTheme.colorScheme.primary,
-                            fontWeight = FontWeight.Medium
-                        )
+                        .border(1.5.dp, MaterialTheme.colorScheme.background, CircleShape)
+                )
+
+                // Profile & Account Dropdown Menu
+                DropdownMenu(
+                    expanded = profileMenuExpanded,
+                    onDismissRequest = { profileMenuExpanded = false },
+                    modifier = Modifier.widthIn(min = 240.dp)
+                ) {
+                    // Header: User Profile Info
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 10.dp)
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
+                            Surface(
+                                shape = CircleShape,
+                                color = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(36.dp)
+                            ) {
+                                Box(contentAlignment = Alignment.Center) {
+                                    Text(
+                                        text = avatarInitial,
+                                        fontSize = 15.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.onPrimary
+                                    )
+                                }
+                            }
+                            Column {
+                                Text(
+                                    text = currentUser.displayName,
+                                    style = MaterialTheme.typography.titleSmall,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                                Text(
+                                    text = currentUser.email,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        // Sync Status Pill
+                        Surface(
+                            shape = RoundedCornerShape(8.dp),
+                            color = when (syncState) {
+                                is SyncState.Synced -> Color(0xFF10B981).copy(alpha = 0.12f)
+                                is SyncState.Syncing -> Color(0xFF38BDF8).copy(alpha = 0.12f)
+                                else -> MaterialTheme.colorScheme.surfaceVariant
+                            }
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(6.dp)
+                            ) {
+                                Icon(
+                                    imageVector = when (syncState) {
+                                        is SyncState.Synced -> Icons.Default.CloudDone
+                                        is SyncState.Syncing -> Icons.Default.CloudSync
+                                        else -> Icons.Default.CloudOff
+                                    },
+                                    contentDescription = null,
+                                    tint = when (syncState) {
+                                        is SyncState.Synced -> Color(0xFF10B981)
+                                        is SyncState.Syncing -> Color(0xFF38BDF8)
+                                        else -> Color(0xFFF59E0B)
+                                    },
+                                    modifier = Modifier.size(13.dp)
+                                )
+                                Text(
+                                    text = when (syncState) {
+                                        is SyncState.Synced -> "Cloud Synced"
+                                        is SyncState.Syncing -> "Syncing Changes..."
+                                        else -> "Local Mode"
+                                    },
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = when (syncState) {
+                                        is SyncState.Synced -> Color(0xFF10B981)
+                                        is SyncState.Syncing -> Color(0xFF38BDF8)
+                                        else -> Color(0xFFF59E0B)
+                                    }
+                                )
+                            }
+                        }
                     }
+
+                    HorizontalDivider()
+
+                    // Action: Switch Account
+                    DropdownMenuItem(
+                        text = { Text("Switch Account") },
+                        leadingIcon = {
+                            Icon(
+                                Icons.Default.People,
+                                contentDescription = null,
+                                modifier = Modifier.size(18.dp)
+                            )
+                        },
+                        onClick = {
+                            profileMenuExpanded = false
+                            onProfileClick()
+                        }
+                    )
+
+                    // Action: Add / Sign In Account
+                    DropdownMenuItem(
+                        text = { Text("Add / Sign In Account") },
+                        leadingIcon = {
+                            Icon(
+                                Icons.Default.PersonAdd,
+                                contentDescription = null,
+                                modifier = Modifier.size(18.dp)
+                            )
+                        },
+                        onClick = {
+                            profileMenuExpanded = false
+                            onOpenAuth()
+                        }
+                    )
+
+                    HorizontalDivider()
+
+                    // Action: Sign Out
+                    DropdownMenuItem(
+                        text = {
+                            Text(
+                                text = "Sign Out",
+                                color = MaterialTheme.colorScheme.error,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        },
+                        leadingIcon = {
+                            Icon(
+                                Icons.Default.Logout,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.error,
+                                modifier = Modifier.size(18.dp)
+                            )
+                        },
+                        onClick = {
+                            profileMenuExpanded = false
+                            onSignOut()
+                        }
+                    )
                 }
             }
         }

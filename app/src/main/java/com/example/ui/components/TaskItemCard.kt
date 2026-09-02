@@ -100,20 +100,19 @@ fun TaskItemCard(
 ) {
     var menuExpanded by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
-    val context = LocalContext.current
     val isDone = item.isCompleted || (item.isBill && item.isPaid)
     val isOverdue = item.isOverdue()
     val categoryColor = getCategoryColor(item.taskCategory)
 
     // Animated transitions for interactive completion effect
     val cardAlpha by animateFloatAsState(
-        targetValue = if (isDone) 0.6f else 1f,
-        animationSpec = tween(durationMillis = 280),
+        targetValue = if (isDone) 0.55f else 1f,
+        animationSpec = tween(durationMillis = 250),
         label = "card_alpha"
     )
 
     val checkScale by animateFloatAsState(
-        targetValue = if (isDone) 1.15f else 1.0f,
+        targetValue = if (isDone) 1.1f else 1.0f,
         animationSpec = spring(
             dampingRatio = Spring.DampingRatioMediumBouncy,
             stiffness = Spring.StiffnessLow
@@ -123,31 +122,31 @@ fun TaskItemCard(
 
     val strikethroughProgress by animateFloatAsState(
         targetValue = if (isDone) 1f else 0f,
-        animationSpec = tween(durationMillis = 320, easing = FastOutSlowInEasing),
+        animationSpec = tween(durationMillis = 300, easing = FastOutSlowInEasing),
         label = "strikethrough_progress"
     )
 
     val titleColor by animateColorAsState(
-        targetValue = if (isDone) MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f) else MaterialTheme.colorScheme.onSurface,
-        animationSpec = tween(durationMillis = 250),
+        targetValue = if (isDone) MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.55f) else MaterialTheme.colorScheme.onSurface,
+        animationSpec = tween(durationMillis = 200),
         label = "title_color"
     )
 
     val cardBorderColor by animateColorAsState(
-        targetValue = if (isOverdue && !isDone) MaterialTheme.colorScheme.error.copy(alpha = 0.6f)
-        else if (isDone) MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)
-        else MaterialTheme.colorScheme.outline,
-        animationSpec = tween(durationMillis = 250),
+        targetValue = if (isOverdue && !isDone) MaterialTheme.colorScheme.error.copy(alpha = 0.4f)
+        else if (isDone) MaterialTheme.colorScheme.outline.copy(alpha = 0.25f)
+        else MaterialTheme.colorScheme.outline.copy(alpha = 0.6f),
+        animationSpec = tween(durationMillis = 200),
         label = "border_color"
     )
 
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 5.dp)
+            .padding(horizontal = 16.dp, vertical = 4.dp)
             .alpha(cardAlpha)
             .testTag("task_item_${item.id}"),
-        shape = RoundedCornerShape(20.dp),
+        shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
         ),
@@ -162,368 +161,295 @@ fun TaskItemCard(
                 .fillMaxWidth()
                 .height(IntrinsicSize.Min)
         ) {
-            // Left Accent Stripe
+            // Left Accent Stripe (Subtle, rounded)
             Box(
                 modifier = Modifier
-                    .width(5.dp)
+                    .width(4.dp)
                     .fillMaxHeight()
                     .background(
-                        if (isDone) MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)
+                        if (isDone) MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
                         else if (isOverdue) MaterialTheme.colorScheme.error
                         else categoryColor
                     )
             )
 
-            Column(
+            Row(
                 modifier = Modifier
-                    .weight(1f)
-                    .padding(14.dp)
+                    .fillMaxWidth()
+                    .padding(start = 10.dp, end = 6.dp, top = 8.dp, bottom = 8.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                // Top Row: Category Tag + Priority Badge + Overflow Menu
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                // Sleek Checkbox / Bill Pay Toggle (Clean & Minimal)
+                Box(
+                    modifier = Modifier
+                        .scale(checkScale)
+                        .testTag("checkbox_${item.id}"),
+                    contentAlignment = Alignment.Center
                 ) {
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(6.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        // Category pill with Icon
+                    if (item.isBill) {
                         Surface(
                             shape = RoundedCornerShape(8.dp),
-                            color = getCategoryBgColor(item.taskCategory),
-                            border = BorderStroke(1.dp, categoryColor.copy(alpha = 0.4f))
-                        ) {
-                            Row(
-                                modifier = Modifier.padding(horizontal = 7.dp, vertical = 3.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(4.dp)
-                            ) {
-                                Icon(
-                                    imageVector = getCategoryIcon(item.taskCategory),
-                                    contentDescription = null,
-                                    tint = categoryColor,
-                                    modifier = Modifier.size(12.dp)
-                                )
-                                Text(
-                                    text = item.taskCategory.displayName,
-                                    fontSize = 11.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = categoryColor
-                                )
-                            }
-                        }
-
-                        // Priority Badge
-                        PriorityBadge(
-                            priority = item.taskPriority,
-                            isCompleted = isDone
-                        )
-
-                        // Recurring Chip
-                        if (item.isRecurring) {
-                            Surface(
-                                shape = RoundedCornerShape(8.dp),
-                                color = MaterialTheme.colorScheme.surfaceVariant
-                            ) {
-                                Row(
-                                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 3.dp),
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(3.dp)
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Repeat,
-                                        contentDescription = null,
-                                        modifier = Modifier.size(11.dp),
-                                        tint = MaterialTheme.colorScheme.primary
-                                    )
-                                    Text(
-                                        text = (item.recurringInterval ?: "Recurring").lowercase().replaceFirstChar { it.uppercase() },
-                                        fontSize = 10.sp,
-                                        fontWeight = FontWeight.Medium,
-                                        color = MaterialTheme.colorScheme.primary
-                                    )
-                                }
-                            }
-                        }
-
-                        // Google Calendar Synced Badge
-                        if (item.isSyncedToCalendar) {
-                            Surface(
-                                shape = RoundedCornerShape(8.dp),
-                                color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
-                            ) {
-                                Row(
-                                    modifier = Modifier.padding(horizontal = 5.dp, vertical = 3.dp),
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(3.dp)
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Event,
-                                        contentDescription = "Google Calendar Synced",
-                                        modifier = Modifier.size(11.dp),
-                                        tint = MaterialTheme.colorScheme.primary
-                                    )
-                                    Text(
-                                        text = "Calendar",
-                                        fontSize = 10.sp,
-                                        fontWeight = FontWeight.Medium,
-                                        color = MaterialTheme.colorScheme.primary
-                                    )
-                                }
-                            }
-                        }
-                    }
-
-                    // Options Dropdown Menu
-                    Box {
-                        IconButton(
-                            onClick = { menuExpanded = true },
+                            color = if (item.isPaid) StatusSuccess else MaterialTheme.colorScheme.surfaceVariant,
+                            border = BorderStroke(
+                                1.dp,
+                                if (item.isPaid) StatusSuccess else MaterialTheme.colorScheme.outline.copy(alpha = 0.6f)
+                            ),
                             modifier = Modifier
-                                .size(28.dp)
-                                .testTag("task_menu_btn_${item.id}")
+                                .clip(RoundedCornerShape(8.dp))
+                                .clickable { onToggleStatus(item) }
                         ) {
-                            Icon(
-                                imageVector = Icons.Default.MoreVert,
-                                contentDescription = "Options",
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.size(18.dp)
+                            Row(
+                                modifier = Modifier.padding(horizontal = 7.dp, vertical = 4.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(3.dp)
+                            ) {
+                                Icon(
+                                    imageVector = if (item.isPaid) Icons.Default.Check else Icons.Default.Paid,
+                                    contentDescription = if (item.isPaid) "Paid" else "Mark Paid",
+                                    tint = if (item.isPaid) Color.White else MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.size(13.dp)
+                                )
+                                Text(
+                                    text = if (item.isPaid) "PAID" else "PAY",
+                                    fontSize = 10.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = if (item.isPaid) Color.White else MaterialTheme.colorScheme.primary
+                                )
+                            }
+                        }
+                    } else {
+                        // Sleek circular check button with clear, crisp boundary and zero wasteful margin
+                        Surface(
+                            shape = CircleShape,
+                            color = if (item.isCompleted) MaterialTheme.colorScheme.primary else Color.Transparent,
+                            border = BorderStroke(
+                                1.5.dp,
+                                if (item.isCompleted) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
+                            ),
+                            modifier = Modifier
+                                .size(22.dp)
+                                .clip(CircleShape)
+                                .clickable { onToggleStatus(item) }
+                        ) {
+                            if (item.isCompleted) {
+                                Box(contentAlignment = Alignment.Center) {
+                                    Icon(
+                                        imageVector = Icons.Default.Check,
+                                        contentDescription = "Completed",
+                                        tint = MaterialTheme.colorScheme.onPrimary,
+                                        modifier = Modifier.size(14.dp)
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.width(10.dp))
+
+                // Center Column: Title, Description, and Minimal Metadata Line
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(vertical = 2.dp)
+                ) {
+                    // Title with Animated Strikethrough
+                    Text(
+                        text = item.title,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontSize = 15.sp,
+                        fontWeight = if (isDone) FontWeight.Normal else FontWeight.SemiBold,
+                        color = titleColor,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.drawWithContent {
+                            drawContent()
+                            if (strikethroughProgress > 0f) {
+                                val strokeWidth = 1.5.dp.toPx()
+                                val y = size.height / 2f
+                                drawLine(
+                                    color = titleColor.copy(alpha = 0.7f),
+                                    start = Offset(0f, y),
+                                    end = Offset(size.width * strikethroughProgress, y),
+                                    strokeWidth = strokeWidth
+                                )
+                            }
+                        }
+                    )
+
+                    // Optional Description (single line, unobtrusive)
+                    if (item.description.isNotBlank()) {
+                        Spacer(modifier = Modifier.height(1.dp))
+                        Text(
+                            text = item.description,
+                            style = MaterialTheme.typography.bodySmall,
+                            fontSize = 12.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(
+                                alpha = if (isDone) 0.45f else 0.85f
+                            ),
+                            textDecoration = if (isDone) TextDecoration.LineThrough else TextDecoration.None,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(5.dp))
+
+                    // Minimalist Metadata Footer (Inline dots & clean small badges)
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        // Category Label (clean text with tint color)
+                        Text(
+                            text = item.taskCategory.displayName,
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = if (isDone) MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f) else categoryColor,
+                            maxLines = 1
+                        )
+
+                        // Priority Badge (only if not default/completed or for High/Urgent)
+                        if (item.taskPriority != TaskPriority.LOW || !isDone) {
+                            Text(
+                                text = "•",
+                                fontSize = 10.sp,
+                                color = MaterialTheme.colorScheme.outline
+                            )
+                            PriorityBadge(
+                                priority = item.taskPriority,
+                                isCompleted = isDone
                             )
                         }
 
-                        DropdownMenu(
-                            expanded = menuExpanded,
-                            onDismissRequest = { menuExpanded = false }
-                        ) {
-                            DropdownMenuItem(
-                                text = { Text("Edit") },
-                                leadingIcon = { Icon(Icons.Default.Edit, contentDescription = null, modifier = Modifier.size(18.dp)) },
-                                onClick = {
-                                    menuExpanded = false
-                                    onEdit(item)
-                                }
+                        // Due Date Info (concise)
+                        item.getFormattedDueDate()?.let { dueDateStr ->
+                            Text(
+                                text = "•",
+                                fontSize = 10.sp,
+                                color = MaterialTheme.colorScheme.outline
                             )
-                            DropdownMenuItem(
-                                text = { Text("Snooze 15 min") },
-                                leadingIcon = { Icon(Icons.Default.Snooze, contentDescription = null, modifier = Modifier.size(18.dp)) },
-                                onClick = {
-                                    menuExpanded = false
-                                    onSnooze(item, 15)
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(3.dp)
+                            ) {
+                                if (isOverdue && !isDone) {
+                                    Icon(
+                                        imageVector = Icons.Default.AccessTime,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(11.dp),
+                                        tint = MaterialTheme.colorScheme.error
+                                    )
                                 }
+                                Text(
+                                    text = if (isOverdue && !isDone) "Overdue" else dueDateStr,
+                                    fontSize = 11.sp,
+                                    fontWeight = if (isOverdue && !isDone) FontWeight.Bold else FontWeight.Normal,
+                                    color = if (isOverdue && !isDone) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant,
+                                    maxLines = 1
+                                )
+                            }
+                        }
+
+                        // Recurring Indicator Icon
+                        if (item.isRecurring) {
+                            Icon(
+                                imageVector = Icons.Default.Repeat,
+                                contentDescription = "Recurring",
+                                modifier = Modifier.size(11.dp),
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
                             )
-                            DropdownMenuItem(
-                                text = { Text("Snooze 1 hour") },
-                                leadingIcon = { Icon(Icons.Default.AccessTime, contentDescription = null, modifier = Modifier.size(18.dp)) },
-                                onClick = {
-                                    menuExpanded = false
-                                    onSnooze(item, 60)
-                                }
-                            )
-                            DropdownMenuItem(
-                                text = { Text("Sync to Google Calendar") },
-                                leadingIcon = { Icon(Icons.Default.Sync, contentDescription = null, modifier = Modifier.size(18.dp)) },
-                                onClick = {
-                                    menuExpanded = false
-                                    coroutineScope.launch {
-                                        TaskPulseApp.instance.repository.syncSingleItemToGoogleCalendar(item)
-                                    }
-                                }
-                            )
-                            DropdownMenuItem(
-                                text = { Text("Delete", color = StatusDanger) },
-                                leadingIcon = { Icon(Icons.Default.Delete, contentDescription = null, tint = StatusDanger, modifier = Modifier.size(18.dp)) },
-                                onClick = {
-                                    menuExpanded = false
-                                    onDelete(item)
-                                }
+                        }
+
+                        // Calendar Synced Indicator Icon
+                        if (item.isSyncedToCalendar) {
+                            Icon(
+                                imageVector = Icons.Default.Event,
+                                contentDescription = "Synced to Calendar",
+                                modifier = Modifier.size(11.dp),
+                                tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f)
                             )
                         }
                     }
                 }
 
-                Spacer(modifier = Modifier.height(10.dp))
+                // Bill Amount Display (if applicable)
+                if (item.isBill && item.amount != null && item.amount > 0) {
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = item.getFormattedAmount(),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = if (item.isPaid) StatusSuccess else MaterialTheme.colorScheme.primary
+                    )
+                }
 
-                // Middle Row: Interactive Checkbox / Paid Action + Title & Description + Amount
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    // Checkbox / Paid button with scale animation
-                    Box(
+                Spacer(modifier = Modifier.width(2.dp))
+
+                // Minimal Options Overflow Menu
+                Box {
+                    IconButton(
+                        onClick = { menuExpanded = true },
                         modifier = Modifier
-                            .scale(checkScale)
-                            .testTag("checkbox_${item.id}")
+                            .size(32.dp)
+                            .testTag("task_menu_btn_${item.id}")
                     ) {
-                        if (item.isBill) {
-                            Surface(
-                                shape = RoundedCornerShape(10.dp),
-                                color = if (item.isPaid) StatusSuccess else MaterialTheme.colorScheme.surfaceVariant,
-                                border = BorderStroke(
-                                    1.dp,
-                                    if (item.isPaid) StatusSuccess else MaterialTheme.colorScheme.outline
-                                ),
-                                modifier = Modifier
-                                    .clip(RoundedCornerShape(10.dp))
-                                    .clickable { onToggleStatus(item) }
-                            ) {
-                                Row(
-                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 6.dp),
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(4.dp)
-                                ) {
-                                    Icon(
-                                        imageVector = if (item.isPaid) Icons.Default.Check else Icons.Default.Paid,
-                                        contentDescription = if (item.isPaid) "Paid" else "Mark Paid",
-                                        tint = if (item.isPaid) Color.White else MaterialTheme.colorScheme.primary,
-                                        modifier = Modifier.size(16.dp)
-                                    )
-                                    Text(
-                                        text = if (item.isPaid) "PAID" else "PAY",
-                                        fontSize = 11.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        color = if (item.isPaid) Color.White else MaterialTheme.colorScheme.primary
-                                    )
-                                }
-                            }
-                        } else {
-                            Checkbox(
-                                checked = item.isCompleted,
-                                onCheckedChange = { onToggleStatus(item) },
-                                colors = CheckboxDefaults.colors(
-                                    checkedColor = MaterialTheme.colorScheme.primary,
-                                    checkmarkColor = MaterialTheme.colorScheme.onPrimary,
-                                    uncheckedColor = MaterialTheme.colorScheme.outline
-                                )
-                            )
-                        }
+                        Icon(
+                            imageVector = Icons.Default.MoreVert,
+                            contentDescription = "Options",
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                            modifier = Modifier.size(18.dp)
+                        )
                     }
 
-                    Spacer(modifier = Modifier.width(10.dp))
-
-                    Column(modifier = Modifier.weight(1f)) {
-                        // Title with dynamic animated strikethrough transition effect
-                        Text(
-                            text = item.title,
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = if (isDone) FontWeight.Normal else FontWeight.SemiBold,
-                            color = titleColor,
-                            maxLines = 2,
-                            overflow = TextOverflow.Ellipsis,
-                            modifier = Modifier.drawWithContent {
-                                drawContent()
-                                if (strikethroughProgress > 0f) {
-                                    val strokeWidth = 2.dp.toPx()
-                                    val y = size.height / 2f
-                                    drawLine(
-                                        color = titleColor.copy(alpha = 0.85f),
-                                        start = Offset(0f, y),
-                                        end = Offset(size.width * strikethroughProgress, y),
-                                        strokeWidth = strokeWidth
-                                    )
+                    DropdownMenu(
+                        expanded = menuExpanded,
+                        onDismissRequest = { menuExpanded = false }
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text("Edit") },
+                            leadingIcon = { Icon(Icons.Default.Edit, contentDescription = null, modifier = Modifier.size(18.dp)) },
+                            onClick = {
+                                menuExpanded = false
+                                onEdit(item)
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text("Snooze 15 min") },
+                            leadingIcon = { Icon(Icons.Default.Snooze, contentDescription = null, modifier = Modifier.size(18.dp)) },
+                            onClick = {
+                                menuExpanded = false
+                                onSnooze(item, 15)
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text("Snooze 1 hour") },
+                            leadingIcon = { Icon(Icons.Default.AccessTime, contentDescription = null, modifier = Modifier.size(18.dp)) },
+                            onClick = {
+                                menuExpanded = false
+                                onSnooze(item, 60)
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text("Sync to Google Calendar") },
+                            leadingIcon = { Icon(Icons.Default.Sync, contentDescription = null, modifier = Modifier.size(18.dp)) },
+                            onClick = {
+                                menuExpanded = false
+                                coroutineScope.launch {
+                                    TaskPulseApp.instance.repository.syncSingleItemToGoogleCalendar(item)
                                 }
                             }
                         )
-
-                        if (item.description.isNotBlank()) {
-                            Spacer(modifier = Modifier.height(2.dp))
-                            Text(
-                                text = item.description,
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(
-                                    alpha = if (isDone) 0.5f else 1f
-                                ),
-                                textDecoration = if (isDone) TextDecoration.LineThrough else TextDecoration.None,
-                                maxLines = 2,
-                                overflow = TextOverflow.Ellipsis
-                            )
-                        }
-                    }
-
-                    // Bill Amount Display
-                    if (item.isBill && item.amount != null && item.amount > 0) {
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Column(horizontalAlignment = Alignment.End) {
-                            Text(
-                                text = item.getFormattedAmount(),
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Bold,
-                                color = if (item.isPaid) StatusSuccess else MaterialTheme.colorScheme.primary
-                            )
-                            if (item.billPayee?.isNotBlank() == true) {
-                                Text(
-                                    text = item.billPayee,
-                                    fontSize = 11.sp,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis
-                                )
+                        DropdownMenuItem(
+                            text = { Text("Delete", color = StatusDanger) },
+                            leadingIcon = { Icon(Icons.Default.Delete, contentDescription = null, tint = StatusDanger, modifier = Modifier.size(18.dp)) },
+                            onClick = {
+                                menuExpanded = false
+                                onDelete(item)
                             }
-                        }
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                // Bottom Badges: Due Date & Reminder Time
-                FlowRow(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    item.getFormattedDueDate()?.let { dueDateStr ->
-                        Surface(
-                            shape = RoundedCornerShape(8.dp),
-                            color = if (isOverdue && !isDone) MaterialTheme.colorScheme.errorContainer else MaterialTheme.colorScheme.surfaceVariant,
-                            border = if (isOverdue && !isDone) BorderStroke(1.dp, MaterialTheme.colorScheme.error.copy(alpha = 0.5f)) else null
-                        ) {
-                            Row(
-                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(4.dp)
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.AccessTime,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(12.dp),
-                                    tint = if (isOverdue && !isDone) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                                Text(
-                                    text = if (isOverdue && !isDone) "Overdue • $dueDateStr" else "Due $dueDateStr",
-                                    fontSize = 11.sp,
-                                    fontWeight = if (isOverdue && !isDone) FontWeight.Bold else FontWeight.Medium,
-                                    color = if (isOverdue && !isDone) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-                        }
-                    }
-
-                    if (item.reminderTime != null && item.reminderTime != item.dueDate) {
-                        item.getFormattedReminderTime()?.let { reminderStr ->
-                            Surface(
-                                shape = RoundedCornerShape(8.dp),
-                                color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f),
-                                border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.3f))
-                            ) {
-                                Row(
-                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(4.dp)
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Alarm,
-                                        contentDescription = null,
-                                        modifier = Modifier.size(12.dp),
-                                        tint = MaterialTheme.colorScheme.primary
-                                    )
-                                    Text(
-                                        text = "Alert: $reminderStr",
-                                        fontSize = 11.sp,
-                                        fontWeight = FontWeight.Medium,
-                                        color = MaterialTheme.colorScheme.primary
-                                    )
-                                }
-                            }
-                        }
+                        )
                     }
                 }
             }

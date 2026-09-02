@@ -296,7 +296,9 @@ fun HomeScreen(
                                             syncState = syncState,
                                             onTapToSpeak = { viewModel.openVoiceDialog() },
                                             onCategoryClick = { cat -> viewModel.setSelectedCategory(cat) },
-                                            onProfileClick = { viewModel.openUserSwitchDialog() }
+                                            onProfileClick = { viewModel.openUserSwitchDialog() },
+                                            onOpenAuth = { viewModel.openAuthDialog() },
+                                            onSignOut = { viewModel.signOut() }
                                         )
 
                                         Text(
@@ -827,7 +829,9 @@ private fun androidx.compose.foundation.lazy.LazyListScope.renderFullHomeSingleC
             syncState = syncState,
             onTapToSpeak = { viewModel.openVoiceDialog() },
             onCategoryClick = { cat -> viewModel.setSelectedCategory(cat) },
-            onProfileClick = { viewModel.openUserSwitchDialog() }
+            onProfileClick = { viewModel.openUserSwitchDialog() },
+            onOpenAuth = { viewModel.openAuthDialog() },
+            onSignOut = { viewModel.signOut() }
         )
     }
 
@@ -1109,7 +1113,7 @@ private fun androidx.compose.foundation.lazy.LazyListScope.renderTaskListItems(
         if (mediumGroup.isNotEmpty()) {
             item {
                 PrioritySectionHeader(
-                    title = "Medium Priority",
+                    title = "Mid Priority",
                     icon = Icons.Default.Flag,
                     count = mediumGroup.size,
                     accentColor = Color(0xFF0284C7)
