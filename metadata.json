@@ -1,0 +1,6 @@
+{
+  "name": "TaskPulse",
+  "description": "Voice-powered smart reminder & task organizer with automatic categorization, bill due dates, and alerts.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
